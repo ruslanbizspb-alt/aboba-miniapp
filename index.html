@@ -1,0 +1,319 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>Aboba Card</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --accent:#6D4AFF; --accent-soft:#B3A4FF; --accent-bg:#6D4AFF29; --accent-line:#6D4AFF55; --card-bg:#4A3399; --plus-bg:#5A3DD6;
+  --bg:#0E0F13; --s1:#17181D; --s2:#1F2128; --s3:#23252D; --line:#2A2C35; --tx:#F2F3F5; --mu:#A0A3AE; --ok:#3DDC97; --bad:#FF8A80;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--tx);font-family:Inter,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none}
+button{font:inherit;color:inherit;border:0;background:none;padding:0;cursor:pointer}
+input{font:inherit}
+input::placeholder{color:#8A8D98}
+.g{font-family:'Space Grotesk',sans-serif}
+#app{min-height:100vh;display:flex;flex-direction:column}
+.page{flex:1;padding:16px 16px 110px;display:flex;flex-direction:column;gap:18px;animation:in .22s ease}
+.page.sub{padding-bottom:120px}
+@keyframes in{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.row{display:flex;align-items:center}
+.between{justify-content:space-between}
+.col{display:flex;flex-direction:column}
+.muted{color:var(--mu)}
+.h1{font-size:24px;font-weight:600}
+.h2{font-size:17px;font-weight:600}
+.box{background:var(--s1);border-radius:20px}
+.list{padding:4px 16px}
+.li{display:flex;align-items:center;justify-content:space-between;padding:13px 0;border-bottom:1px solid var(--s3);font-size:14px}
+.li:last-child{border-bottom:0}
+.iconbtn{width:44px;height:44px;border-radius:14px;background:var(--s1);display:flex;align-items:center;justify-content:center;position:relative}
+.act{display:flex;flex-direction:column;align-items:center;gap:8px;font-size:12px;font-weight:500}
+.act i{width:52px;height:52px;border-radius:18px;background:var(--s3);display:flex;align-items:center;justify-content:center;font-style:normal}
+.act.pri i{background:var(--accent);color:#fff}
+.grid4{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.seg{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px;padding:4px;border-radius:16px;background:var(--s1)}
+.seg button{height:40px;border-radius:12px;font-size:14px;font-weight:600;color:var(--mu)}
+.seg button.on{background:#2A2C35;color:var(--tx)}
+.chip{height:34px;padding:0 14px;border-radius:17px;background:var(--s1);border:1px solid var(--line);display:inline-flex;align-items:center;font-size:13px;font-weight:500}
+.pill{height:44px;border-radius:14px;background:var(--s1);font-size:14px;font-weight:600}
+.pill.on{background:var(--accent);color:#fff}
+.cta{height:54px;border-radius:16px;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:600;width:100%}
+.bottom{position:fixed;left:0;right:0;bottom:0;padding:12px 16px calc(16px + env(safe-area-inset-bottom));background:var(--bg);border-top:1px solid #1C1D23;display:flex;flex-direction:column;gap:8px;z-index:5}
+.tx{display:flex;align-items:center;gap:12px;padding:10px 0}
+.tx .m{width:40px;height:40px;border-radius:13px;background:var(--s1);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:#C9CBD3;flex-shrink:0}
+.note{display:flex;gap:10px;padding:14px;border-radius:16px;background:#1A1B21;border:1px solid var(--line);font-size:13px;line-height:1.5;color:#C9CBD3}
+nav.tabs{position:fixed;left:0;right:0;bottom:0;height:calc(76px + env(safe-area-inset-bottom));padding:8px 12px calc(14px + env(safe-area-inset-bottom));background:#121318;border-top:1px solid var(--s3);display:grid;grid-template-columns:repeat(5,minmax(0,1fr));align-items:center;z-index:5}
+nav.tabs button{display:flex;flex-direction:column;align-items:center;gap:4px;font-size:11px;font-weight:500;color:var(--mu)}
+nav.tabs button.on{color:var(--accent-soft);font-weight:600}
+nav.tabs .qr{width:54px;height:54px;margin:-26px auto 0;border-radius:20px;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 5px var(--bg)}
+.card{border-radius:20px;position:relative;overflow:hidden;box-shadow:0 18px 40px rgba(0,0,0,.45);color:#fff;margin:0 auto}
+.card .wm{position:absolute;font-weight:700;line-height:1;color:rgba(255,255,255,.07)}
+.logo{border-radius:9px;background:#fff;font-weight:700;display:flex;align-items:center;justify-content:center}
+.toast{position:fixed;left:50%;top:16px;transform:translateX(-50%);background:#2A2C35;color:var(--tx);padding:10px 16px;border-radius:12px;font-size:14px;z-index:20;animation:in .2s ease}
+details{border-top:1px solid var(--s3)}
+details summary{list-style:none;min-height:48px;display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:14px;cursor:pointer}
+details summary::-webkit-details-marker{display:none}
+details[open] summary svg{transform:rotate(180deg)}
+details p{margin:0 0 14px;font-size:13px;line-height:1.5;color:var(--mu)}
+.field{height:52px;padding:0 16px;border-radius:16px;border:1px solid var(--line);background:var(--s1);color:var(--tx);font-size:15px;outline:none;width:100%}
+.field:focus{border-color:var(--accent)}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+const tg = window.Telegram ? window.Telegram.WebApp : null;
+const P = new URLSearchParams(location.search);
+
+// ---------- бренд: один акцент, остальное считается ----------
+function mix(hex, to, t){const a=parseInt(hex.slice(1),16),b=parseInt(to.slice(1),16);const c=s=>Math.round(((a>>s)&255)*(1-t)+((b>>s)&255)*t);return '#'+[16,8,0].map(s=>c(s).toString(16).padStart(2,'0')).join('')}
+const BRAND = { name: P.get('name') || 'Aboba Card', mark: (P.get('mark') || 'A').slice(0,2), accent: '#' + (P.get('accent') || '6D4AFF').replace('#','') };
+(function applyBrand(){
+  const r=document.documentElement.style, a=BRAND.accent;
+  r.setProperty('--accent',a); r.setProperty('--accent-soft',mix(a,'#FFFFFF',.45)); r.setProperty('--accent-bg',a+'29');
+  r.setProperty('--accent-line',a+'55'); r.setProperty('--card-bg',mix(a,'#0E0F13',.35)); r.setProperty('--plus-bg',mix(a,'#0E0F13',.2));
+  document.title = BRAND.name;
+})();
+
+// ---------- Telegram ----------
+const user = (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) || { first_name: 'Гость', username: 'guest', id: 0 };
+if (tg) {
+  tg.ready(); tg.expand();
+  try { tg.setHeaderColor('#0E0F13'); tg.setBackgroundColor('#0E0F13'); if (tg.setBottomBarColor) tg.setBottomBarColor('#121318'); } catch(e){}
+  tg.BackButton.onClick(() => back());
+}
+const haptic = (t='light') => { try { tg && tg.HapticFeedback.impactOccurred(t); } catch(e){} };
+
+// ---------- состояние ----------
+const S = { screen:'home', stack:[], hide:false, cardType:'online', show:false, frozen:false, method:'rub', rub:5000, usdt:50, net:'TRC-20', svc:'steam', steam:1000, region:'Популярное', hasCard:true };
+const TABS = ['home','card','services','profile'];
+function go(screen){ haptic(); if (!TABS.includes(screen)) S.stack.push(S.screen); else S.stack=[]; S.screen=screen; render(); window.scrollTo(0,0); }
+function back(){ haptic(); S.screen = S.stack.pop() || 'home'; render(); window.scrollTo(0,0); }
+function set(p){ Object.assign(S,p); render(); }
+function toast(t){ const el=document.createElement('div'); el.className='toast'; el.textContent=t; document.body.appendChild(el); setTimeout(()=>el.remove(),1800); try{tg&&tg.HapticFeedback.notificationOccurred('success')}catch(e){} }
+const fmt = n => String(n).replace(/\B(?=(\d{3})+(?!\d))/g,' ');
+
+// ---------- иконки ----------
+const I = {
+  bell:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 1 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>',
+  chat:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>',
+  eye:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>',
+  plus:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>',
+  card:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="3"/><path d="M2 10h20"/></svg>',
+  send:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M8 7h9v9"/></svg>',
+  swap:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3l4 4-4 4M3 7h18M7 21l-4-4 4-4M21 17H3"/></svg>',
+  home:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/></svg>',
+  grid:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/></svg>',
+  user:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>',
+  qr:'<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3h-3zM20 14v.01M14 20h.01M17 20h4v-3"/></svg>',
+  game:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="12" rx="4"/><path d="M7 11v4M5 13h4"/><circle cx="16" cy="12" r="1"/><circle cx="18" cy="14" r="1"/></svg>',
+  sim:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2h8l4 4v16H6z"/><rect x="9" y="11" width="6" height="7" rx="1"/></svg>',
+  gift:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="8" width="18" height="13" rx="2"/><path d="M12 8v13M3 12h18"/></svg>',
+  snow:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M4.9 4.9l14.2 14.2M2 12h20M4.9 19.1 19.1 4.9"/></svg>',
+  help:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3M12 17h.01"/></svg>',
+  info:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#A0A3AE" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:1px"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>',
+  chev:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#A0A3AE" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>',
+  right:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#A0A3AE" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>',
+  check:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>',
+  bolt:'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 3 14h9l-1 8 10-12h-9z"/></svg>',
+  search:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#A0A3AE" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>'
+};
+
+// ---------- компоненты ----------
+const card = (w, type, inner) => {
+  const h = Math.round(w * 0.625), online = type === 'online';
+  const bg = online ? 'var(--card-bg)' : '#1A1B20';
+  return `<div class="card" style="width:${w}px;height:${h}px;background:${bg}">
+    <div class="wm g" style="right:-30px;bottom:-${Math.round(h*0.35)}px;font-size:${Math.round(h*1.27)}px">${BRAND.mark}</div>
+    <div class="row" style="position:absolute;left:20px;top:20px;gap:8px">
+      <div class="logo g" style="width:30px;height:30px;font-size:16px;color:${online?'var(--accent)':'#1A1B20'}">${BRAND.mark}</div>
+      <span style="font-weight:600;font-size:15px">${BRAND.name}</span></div>
+    <span style="position:absolute;right:20px;top:24px;font-size:12px;font-weight:600;opacity:.85;letter-spacing:.5px">${online?'ONLINE':'NFC · WALLET'}</span>
+    ${inner || '<div style="position:absolute;left:20px;top:'+Math.round(h*0.42)+'px;width:40px;height:30px;border-radius:6px;background:#E8D9A8"></div>'}
+    <span class="g" style="position:absolute;left:20px;bottom:22px;font-size:16px;letter-spacing:2px">${S.show && inner ? '0000 0000 0000 4417' : '•••• •••• •••• ' + (inner ? '4417' : '••••')}</span>
+    <span style="position:absolute;right:20px;bottom:22px;font-size:13px;font-weight:700">USD</span>
+    ${S.frozen && inner ? `<div class="col" style="position:absolute;inset:0;background:rgba(14,15,19,.72);align-items:center;justify-content:center;gap:8px;color:#DDEFFF">${I.snow}<span style="font-weight:600">Карта заморожена</span></div>` : ''}
+  </div>`;
+};
+const txRow = t => `<div class="tx"><span class="m">${t[0]}</span><div class="col" style="gap:2px;flex:1"><span style="font-size:15px;font-weight:500">${t[1]}</span><span style="font-size:12px;color:${t[4]||'var(--mu)'}">${t[2]}</span></div><span class="g" style="font-size:15px;font-weight:600;color:${t[3][0]==='+'?'var(--ok)':(t[5]||'var(--tx)')}">${t[3]}</span></div>`;
+const back_ = title => `<div class="row" style="gap:8px;margin:-4px 0 -6px -8px">${tg && tg.platform !== 'unknown' ? '' : `<button class="iconbtn" style="background:none" aria-label="Назад" onclick="back()"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg></button>`}<span class="h2">${title}</span></div>`;
+
+// ---------- экраны ----------
+const V = {};
+V.home = () => `
+<div class="row between">
+  <div class="row" style="gap:10px">
+    <div class="g" style="width:36px;height:36px;border-radius:11px;background:var(--accent);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:18px;color:#fff">${BRAND.mark}</div>
+    <div class="col"><span style="font-weight:600;font-size:15px">${BRAND.name}</span><span class="muted" style="font-size:12px">@${user.username || user.first_name}</span></div>
+  </div>
+  <div class="row" style="gap:8px">
+    <button class="iconbtn" aria-label="Уведомления" onclick="toast('Уведомлений пока нет')">${I.bell}<span style="position:absolute;top:10px;right:11px;width:8px;height:8px;border-radius:4px;background:var(--accent)"></span></button>
+    <button class="iconbtn" aria-label="Поддержка" onclick="toast('Поддержка: скоро')">${I.chat}</button>
+  </div>
+</div>
+<div class="box col" style="position:relative;overflow:hidden;border-radius:24px;padding:20px;gap:18px">
+  <div class="g" aria-hidden="true" style="position:absolute;right:-24px;top:-46px;font-weight:700;font-size:220px;line-height:1;color:var(--accent-bg)">${BRAND.mark}</div>
+  <div class="col" style="gap:6px;position:relative">
+    <button class="row muted" style="gap:6px;font-size:13px;align-self:flex-start" onclick="set({hide:!S.hide})">Баланс кошелька ${I.eye}</button>
+    <span class="g" style="font-weight:600;font-size:40px;letter-spacing:-.5px">${S.hide?'•••••• ₽':'12 480 ₽'}</span>
+    <span class="muted" style="font-size:13px">${S.hide?'≈ •••• USDT':'≈ 136.20 USDT'}</span>
+  </div>
+  <div class="grid4" style="position:relative">
+    <button class="act pri" onclick="go('topup')"><i>${I.plus}</i>Пополнить</button>
+    <button class="act" onclick="go('issue')"><i>${I.card}</i>Карта</button>
+    <button class="act" onclick="toast('Переводы: скоро')"><i>${I.send}</i>Перевести</button>
+    <button class="act" onclick="toast('Обмен: скоро')"><i>${I.swap}</i>Обмен</button>
+  </div>
+</div>
+<button class="box row" style="gap:14px;padding:14px;text-align:left" onclick="go('card')">
+  <div style="width:64px;height:42px;border-radius:8px;background:var(--card-bg);position:relative;flex-shrink:0">
+    <div class="g" style="position:absolute;left:7px;top:7px;width:14px;height:14px;border-radius:4px;background:#fff;color:var(--accent);font-size:9px;font-weight:700;display:flex;align-items:center;justify-content:center">${BRAND.mark}</div>
+    <div style="position:absolute;right:7px;bottom:6px;font-size:8px;color:#fff;opacity:.8;letter-spacing:1px">4417</div></div>
+  <div class="col" style="gap:3px;flex:1"><span style="font-weight:600;font-size:15px">Онлайн •• 4417</span><span class="muted" style="font-size:13px">Подписки, сервисы, AI</span></div>
+  <div class="col" style="gap:3px;align-items:flex-end"><span class="g" style="font-weight:600;font-size:16px">$84.20</span><span style="font-size:12px;color:${S.frozen?'#BFE3FF':'var(--ok)'}">${S.frozen?'Заморожена':'Активна'}</span></div>
+</button>
+<button class="col" style="position:relative;overflow:hidden;gap:6px;padding:18px;border-radius:22px;background:var(--accent-bg);border:1px solid var(--accent-line);text-align:left" onclick="set({cardType:'wallet'});go('issue')">
+  <span style="font-size:12px;font-weight:600;color:var(--accent-soft);text-transform:uppercase;letter-spacing:.6px">Новая карта</span>
+  <span class="g" style="font-weight:600;font-size:20px;max-width:210px">Плати телефоном в Apple Pay и Google Pay</span>
+  <span style="font-size:13px;color:#C9CBD3">Выпуск за 2 минуты · от [цена]</span>
+  <div aria-hidden="true" style="position:absolute;right:-18px;bottom:-14px;width:132px;height:86px;border-radius:14px;background:var(--accent);transform:rotate(-14deg)">
+    <div class="g" style="position:absolute;left:12px;top:12px;width:22px;height:22px;border-radius:6px;background:#fff;color:var(--accent);font-weight:700;font-size:13px;display:flex;align-items:center;justify-content:center">${BRAND.mark}</div></div>
+</button>
+<div class="col" style="gap:12px">
+  <div class="row between"><span class="h2">Сервисы</span><button style="font-size:14px;color:var(--accent-soft)" onclick="go('services')">Все</button></div>
+  <div class="grid3">
+    <button class="box col" style="gap:10px;padding:14px 12px;border-radius:18px;text-align:left" onclick="set({svc:'steam'});go('services')"><span style="width:36px;height:36px;border-radius:12px;background:var(--s3);display:flex;align-items:center;justify-content:center">${I.game}</span><span style="font-size:13px;font-weight:500">Steam</span></button>
+    <button class="box col" style="gap:10px;padding:14px 12px;border-radius:18px;text-align:left" onclick="set({svc:'esim'});go('services')"><span style="width:36px;height:36px;border-radius:12px;background:var(--s3);display:flex;align-items:center;justify-content:center">${I.sim}</span><span style="font-size:13px;font-weight:500">eSIM</span></button>
+    <div class="box col muted" style="gap:10px;padding:14px 12px;border-radius:18px"><span style="width:36px;height:36px;border-radius:12px;background:var(--s3);display:flex;align-items:center;justify-content:center">${I.gift}</span><span style="font-size:13px;font-weight:500">Подарки · скоро</span></div>
+  </div>
+</div>
+<div class="col" style="gap:4px">
+  <div class="row between" style="padding-bottom:8px"><span class="h2">История</span></div>
+  ${[['AI','ChatGPT Plus','Онлайн •• 4417 · сегодня','−$20.00'],['₽','Пополнение по СБП','Кошелёк · вчера','+5 000 ₽'],['St','Steam','Пополнение аккаунта · 18 ноя','−1 200 ₽'],['₮','Пополнение USDT','TRC-20 · 17 ноя','+50.00 USDT']].map(txRow).join('')}
+</div>`;
+
+V.issue = () => {
+  const on = S.cardType === 'online';
+  const uses = on ? ['ChatGPT','Claude','Midjourney','Netflix','Spotify','Steam','App Store','Airbnb'] : ['Apple Pay','Google Pay','Кафе и магазины','Такси','Отели','Онлайн-покупки'];
+  const tariffs = on ? [['Выпуск','[цена]'],['Пополнение карты','[%]'],['Комиссия за операцию','[$]'],['Конвертация валют','[%]'],['Лимит в месяц','[сумма]'],['Обслуживание','Бесплатно']]
+                     : [['Выпуск','[цена]'],['Пополнение карты','[%]'],['Комиссия за операцию','[$]'],['Лимит в месяц','[сумма]'],['Страна выпуска','[страна]'],['Обслуживание','Бесплатно']];
+  const faq = on ? [['Куда приходит код 3-D Secure?','Код подтверждения приходит сообщением в бот. Сверьте магазин и сумму перед вводом.'],['Где карта не работает?','[Список стран и категорий магазинов, где возможны отказы.]'],['Можно ли вернуть деньги с карты?','Остаток с карты можно вернуть на баланс кошелька в разделе карты.']]
+                 : [['Как добавить карту в Apple Pay?','Откройте карту и нажмите «Добавить в Apple Wallet» — мы покажем шаги.'],['Работает ли в магазинах?','Да, на терминалах с бесконтактной оплатой. [Уточнить страны.]'],['Куда приходит код 3-D Secure?','Код подтверждения приходит сообщением в бот.']];
+  return `${back_('Выпуск карты')}
+<div class="seg"><button class="${on?'on':''}" onclick="haptic();set({cardType:'online'})">Онлайн</button><button class="${on?'':'on'}" onclick="haptic();set({cardType:'wallet'})">Apple Pay · Google Pay</button></div>
+<div style="padding:6px 0 2px">${card(Math.min(320, innerWidth-48), S.cardType)}</div>
+<div class="col" style="gap:6px;align-items:center;text-align:center">
+  <span class="g" style="font-weight:600;font-size:24px">${on?'Онлайн-карта':'Карта для телефона'}</span>
+  <span class="muted" style="font-size:14px;max-width:300px">${on?'Для подписок, AI-сервисов, игр и покупок в зарубежных магазинах':'Добавьте в Apple Pay или Google Pay и платите в поездках и магазинах'}</span>
+  <span class="row" style="margin-top:4px;gap:6px;height:28px;padding:0 12px;border-radius:14px;background:var(--accent-bg);color:var(--accent-soft);font-size:13px;font-weight:600">${I.bolt} Выпуск за 2 минуты</span>
+</div>
+<div class="col" style="gap:10px"><span class="muted" style="font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:.6px">${on?'Работает в сервисах':'Где пригодится'}</span>
+  <div class="row" style="flex-wrap:wrap;gap:8px">${uses.map(u=>`<span class="chip">${u}</span>`).join('')}</div></div>
+<div class="row" style="gap:12px;padding:14px;border-radius:18px;background:#12251C;border:1px solid #1E4A34">
+  <span class="g" style="width:40px;height:40px;border-radius:13px;background:#1B3A2B;color:var(--ok);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;flex-shrink:0">+$</span>
+  <div class="col" style="gap:2px"><span style="font-size:14px;font-weight:600">Бонус после активации</span><span style="font-size:13px;color:#A6C9B6">Вернём [сумма] на баланс после первой покупки</span></div></div>
+<div class="box list"><div class="h2" style="font-size:15px;padding:14px 0 6px">Тарифы</div>
+  ${tariffs.map(t=>`<div class="li"><span class="muted">${t[0]}</span><span style="font-weight:600">${t[1]}</span></div>`).join('')}
+  <div class="li"><span style="color:var(--accent-soft);font-weight:600">С подпиской Plus дешевле</span><button style="font-size:13px;color:var(--accent-soft)" onclick="go('profile')">Подробнее</button></div></div>
+<div class="box list"><div class="h2" style="font-size:15px;padding:14px 0 6px">Частые вопросы</div>
+  ${faq.map(f=>`<details><summary>${f[0]}${I.chev}</summary><p>${f[1]}</p></details>`).join('')}</div>
+<div class="bottom"><button class="cta" onclick="toast('Выпуск карты — демо');setTimeout(()=>go('card'),600)">Выпустить за [цена]</button><span class="muted" style="font-size:12px;text-align:center">Оплата с баланса кошелька · баланс 12 480 ₽</span></div>`;
+};
+
+V.card = () => `
+<div class="row between"><span class="g h1">Мои карты</span><button class="row" style="height:40px;padding:0 14px;border-radius:13px;background:var(--s1);gap:6px;font-size:14px;font-weight:600" onclick="go('issue')">${I.plus.replace('22','18').replace('22','18')} Новая</button></div>
+<div>${card(Math.min(340, innerWidth-32), 'online', `<div class="col" style="position:absolute;left:20px;top:76px;gap:2px"><span style="font-size:12px;opacity:.75">Баланс карты</span><span class="g" style="font-weight:600;font-size:30px">$84.20</span></div>`)}</div>
+<div class="grid4">
+  <button class="act pri" onclick="go('topup')"><i>${I.plus}</i>Пополнить</button>
+  <button class="act" onclick="haptic();set({show:!S.show})"><i>${I.eye.replace(/16/g,'22')}</i>${S.show?'Скрыть':'Реквизиты'}</button>
+  <button class="act" onclick="haptic('medium');set({frozen:!S.frozen})"><i style="${S.frozen?'background:#1B2E40;color:#BFE3FF':''}">${I.snow}</i>${S.frozen?'Разморозить':'Заморозить'}</button>
+  <button class="act" onclick="toast('Поддержка: скоро')"><i>${I.help}</i>Помощь</button>
+</div>
+${S.show ? `<div class="box list">${[['Номер карты','0000 0000 0000 4417'],['Срок действия','11/29'],['CVC','•••']].map(d=>`<div class="li"><div class="col" style="gap:2px"><span class="muted" style="font-size:12px">${d[0]}</span><span class="g" style="font-size:16px;font-weight:600;letter-spacing:1px">${d[1]}</span></div><button style="height:34px;padding:0 12px;border-radius:11px;background:var(--s3);font-size:13px;font-weight:500" onclick="toast('Скопировано')">Копировать</button></div>`).join('')}<div class="muted" style="font-size:12px;padding:12px 0">Никому не сообщайте CVC и коды из бота.</div></div>` : ''}
+<button class="row" style="height:52px;border-radius:16px;background:#F2F3F5;color:#0E0F13;justify-content:center;gap:10px;font-size:15px;font-weight:600" onclick="toast('Привязка к Wallet — демо')">${I.card.replace(/22/g,'20')} Добавить в Apple Wallet</button>
+<div class="col" style="gap:4px"><span class="h2" style="padding-bottom:8px">Операции по карте</span>
+  ${[['AI','ChatGPT Plus','Сегодня, 14:02','−$20.00'],['!','Midjourney','Отклонено: недостаточно средств','$30.00','var(--bad)','var(--mu)'],['+','Пополнение карты','С баланса кошелька · 18 ноя','+$100.00'],['Sp','Spotify','15 ноя','−$11.99']].map(txRow).join('')}</div>`;
+
+V.topup = () => {
+  const c = S.method === 'crypto', vals = c ? [20,50,100,250] : [2000,5000,10000,25000], cur = c ? S.usdt : S.rub;
+  return `${back_('Пополнение кошелька')}
+<div class="grid2">
+  ${[['rub','₽','Рубли','СБП · мгновенно'],['crypto','₮','Крипта','USDT · 3 сети']].map(m=>`<button class="col box" style="align-items:flex-start;gap:10px;padding:14px;border-radius:18px;text-align:left;border:2px solid ${S.method===m[0]?'var(--accent)':'transparent'}" onclick="haptic();set({method:'${m[0]}'})"><span class="g" style="width:36px;height:36px;border-radius:12px;background:var(--s3);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:17px">${m[1]}</span><span class="col" style="gap:2px"><span style="font-size:15px;font-weight:600">${m[2]}</span><span class="muted" style="font-size:12px">${m[3]}</span></span></button>`).join('')}
+</div>
+${c ? `<div class="col" style="gap:10px"><span class="muted" style="font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:.6px">Сеть</span><div class="grid3">${[['TRC-20','Tron'],['TON','The Open Network'],['BEP-20','BNB Chain']].map(n=>`<button class="col" style="align-items:center;gap:2px;padding:10px 6px;border-radius:14px;background:${S.net===n[0]?'var(--accent-bg)':'var(--s1)'};border:1px solid ${S.net===n[0]?'var(--accent)':'var(--line)'}" onclick="haptic();set({net:'${n[0]}'})"><span style="font-size:14px;font-weight:600">${n[0]}</span><span class="muted" style="font-size:11px">${n[1]}</span></button>`).join('')}</div></div>` : ''}
+<div class="box col" style="align-items:center;gap:6px;padding:22px 16px;border-radius:22px"><span class="muted" style="font-size:13px">Сумма пополнения</span><span class="g" style="font-weight:600;font-size:44px;letter-spacing:-.5px">${c ? S.usdt+' USDT' : fmt(S.rub)+' ₽'}</span><span class="muted" style="font-size:13px">${c?'Минимум [сумма] USDT':'От [мин] до [макс] ₽'}</span></div>
+<div class="grid4">${vals.map(v=>`<button class="pill ${v===cur?'on':''}" onclick="haptic();set({${c?'usdt':'rub'}:${v}})">${c ? v+' ₮' : (v/1000)+'K ₽'}</button>`).join('')}</div>
+<div class="box list">${(c ? [['Сеть',S.net],['Комиссия сервиса','[%]'],['Курс','1 USDT = [курс] ₽']] : [['Способ','СБП'],['Комиссия','[%]'],['Зачисление','До 1 минуты']]).map(s=>`<div class="li"><span class="muted">${s[0]}</span><span style="font-weight:600">${s[1]}</span></div>`).join('')}
+  <div class="li"><span style="font-size:15px;font-weight:600">К зачислению</span><span class="g" style="font-size:17px;font-weight:600;color:var(--ok)">${c?'≈ [сумма] ₽':'[сумма] ₽'}</span></div></div>
+<div class="note">${I.info}<span>${c?'Отправляйте только USDT в выбранной сети. Перевод в другой сети или другой монеты может потеряться.':'Переводите со своего счёта. [Уточнить у провайдера: нужно ли совпадение ФИО.]'}</span></div>
+<div class="bottom"><button class="cta" onclick="toast('Платёжный шаг — демо')">${c?'Показать адрес для перевода':'Перейти в банк'}</button></div>`;
+};
+
+const REG = {
+  'Популярное':[['TR','Турция','1–20 ГБ · 7–30 дней'],['TH','Таиланд','Безлимит · 1–30 дней'],['AE','ОАЭ','1–10 ГБ · 7–30 дней'],['VN','Вьетнам','Безлимит · 1–30 дней'],['GE','Грузия','1–20 ГБ · 7–30 дней'],['EU','Европа','39 стран · 5–50 ГБ']],
+  'Азия':[['TH','Таиланд','Безлимит · 1–30 дней'],['VN','Вьетнам','Безлимит · 1–30 дней'],['ID','Индонезия','1–20 ГБ · 7–30 дней'],['CN','Китай','1–10 ГБ · 7–30 дней']],
+  'Европа':[['EU','Европа','39 стран · 5–50 ГБ'],['TR','Турция','1–20 ГБ · 7–30 дней'],['GE','Грузия','1–20 ГБ · 7–30 дней']],
+  'Весь мир':[['GL','Глобальный','120+ стран · 1–20 ГБ']]
+};
+V.services = () => {
+  const st = S.svc === 'steam';
+  return `<span class="g h1">Сервисы</span>
+<div class="seg"><button class="${st?'on':''}" onclick="haptic();set({svc:'steam'})">Steam</button><button class="${st?'':'on'}" onclick="haptic();set({svc:'esim'})">eSIM</button></div>
+${st ? `
+<div class="row" style="gap:14px;padding:16px;border-radius:20px;background:#171B24;border:1px solid #263044"><span style="width:48px;height:48px;border-radius:15px;background:#1F2A3D;display:flex;align-items:center;justify-content:center;color:#C7D5E0;flex-shrink:0">${I.game}</span><div class="col" style="gap:2px"><span style="font-size:16px;font-weight:600">Пополнение Steam</span><span class="muted" style="font-size:13px">Деньги придут на аккаунт за пару минут</span></div></div>
+<div class="col" style="gap:8px"><label for="sl" class="muted" style="font-size:13px;font-weight:600">Логин Steam</label><input id="sl" class="field" type="text" placeholder="Например, gaben" autocomplete="off"><span class="muted" style="font-size:12px">Логин, а не никнейм. Его видно в настройках аккаунта.</span></div>
+<div class="col" style="gap:8px"><span class="muted" style="font-size:13px;font-weight:600">Сумма</span><div class="grid4">${[500,1000,2500,5000].map(v=>`<button class="pill ${v===S.steam?'on':''}" onclick="haptic();set({steam:${v}})">${v>=1000?(v/1000)+'K':v} ₽</button>`).join('')}</div></div>
+<div class="box list"><div class="li"><span class="muted">Придёт на Steam</span><span style="font-weight:600">${fmt(S.steam)} ₽</span></div><div class="li"><span class="muted">Комиссия</span><span style="font-weight:600">[%]</span></div><div class="li"><span style="font-size:15px;font-weight:600">Спишем с баланса</span><span class="g" style="font-size:17px;font-weight:600">[сумма] ₽</span></div></div>
+<button class="cta" onclick="toast('Пополнение Steam — демо')">Пополнить Steam</button>
+<div class="box row between" style="padding:14px 16px;border-radius:18px"><span style="font-size:14px;font-weight:500">Ключи игр и подарочные карты</span><span class="muted" style="height:26px;padding:0 10px;border-radius:13px;background:var(--s3);font-size:12px;font-weight:600;display:inline-flex;align-items:center">Скоро</span></div>
+` : `
+<div style="position:relative"><span style="position:absolute;left:16px;top:17px">${I.search}</span><input class="field" type="search" placeholder="Куда едете?" aria-label="Поиск страны" style="padding-left:44px"></div>
+<div class="row" style="gap:8px;flex-wrap:wrap">${Object.keys(REG).map(r=>`<button class="chip" style="height:36px;background:${r===S.region?'var(--accent-bg)':'var(--s1)'};border-color:${r===S.region?'var(--accent)':'var(--line)'}" onclick="haptic();set({region:'${r}'})">${r}</button>`).join('')}</div>
+<div class="box list">${REG[S.region].map(c=>`<button class="li" style="width:100%;gap:12px;justify-content:flex-start;text-align:left" onclick="toast('${c[1]}: тарифы — демо')"><span style="width:38px;height:38px;border-radius:12px;background:var(--s3);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#C9CBD3;flex-shrink:0">${c[0]}</span><span class="col" style="gap:2px;flex:1"><span style="font-size:15px;font-weight:500">${c[1]}</span><span class="muted" style="font-size:12px">${c[2]}</span></span><span style="font-weight:600">от [цена]</span>${I.right}</button>`).join('')}</div>
+<div class="note">${I.info}<span>Проверьте, что телефон поддерживает eSIM. Установка по QR-коду или одной кнопкой на iPhone.</span></div>`}`;
+};
+
+V.profile = () => `
+<div class="row" style="gap:14px">
+  ${user.photo_url ? `<img src="${user.photo_url}" alt="" style="width:56px;height:56px;border-radius:18px;object-fit:cover">` : `<div class="g" style="width:56px;height:56px;border-radius:18px;background:var(--s3);display:flex;align-items:center;justify-content:center;font-weight:600;font-size:22px">${(user.first_name||'?')[0]}</div>`}
+  <div class="col" style="gap:4px;flex:1"><span style="font-weight:600;font-size:18px">${user.first_name || 'Гость'}</span><span class="muted" style="font-size:13px">${user.username?'@'+user.username+' · ':''}ID ${user.id}</span></div>
+  <span style="height:28px;padding:0 12px;border-radius:14px;background:var(--s3);font-size:12px;font-weight:600;color:#C9CBD3;display:inline-flex;align-items:center">Базовый</span>
+</div>
+<div class="col" style="position:relative;overflow:hidden;border-radius:24px;background:var(--plus-bg);padding:20px;gap:14px;color:#fff">
+  <div class="g" aria-hidden="true" style="position:absolute;right:-10px;top:-40px;font-weight:700;font-size:200px;line-height:1;color:rgba(255,255,255,.08)">+</div>
+  <div class="row" style="gap:8px;position:relative"><span class="g" style="font-weight:700;font-size:24px">${BRAND.name.split(' ')[0]} Plus</span><span style="height:24px;padding:0 10px;border-radius:12px;background:rgba(255,255,255,.18);font-size:12px;font-weight:600;display:inline-flex;align-items:center">[цена] / мес</span></div>
+  <div class="col" style="gap:10px;position:relative">${['Ниже комиссия за пополнение','Лимиты выше','Кэшбэк [%] на покупки','Приоритетная поддержка'].map(p=>`<div class="row" style="gap:10px;font-size:14px">${I.check}${p}</div>`).join('')}</div>
+  <button style="height:48px;border-radius:14px;background:#fff;color:#0E0F13;font-size:15px;font-weight:600;position:relative" onclick="toast('Подписка Plus — демо')">Подключить Plus</button>
+</div>
+<div class="box col" style="gap:14px;padding:18px;border-radius:22px">
+  <div class="col" style="gap:4px"><span class="h2">Приглашай друзей</span><span class="muted" style="font-size:14px">[сумма] тебе и [сумма] другу после его первой карты</span></div>
+  <div class="row" style="gap:8px;padding:6px 6px 6px 14px;border-radius:14px;background:var(--bg);border:1px solid var(--line)"><span style="flex:1;font-size:13px;color:#C9CBD3;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">t.me/aboba_cards_bot?start=ref_${user.id}</span><button style="height:36px;padding:0 14px;border-radius:10px;background:var(--accent);color:#fff;font-size:13px;font-weight:600" onclick="copyRef()">Копировать</button></div>
+  <div class="grid2"><div class="col" style="gap:2px;padding:12px;border-radius:14px;background:var(--s2)"><span class="muted" style="font-size:12px">Приглашено</span><span class="g" style="font-size:20px;font-weight:600">0</span></div><div class="col" style="gap:2px;padding:12px;border-radius:14px;background:var(--s2)"><span class="muted" style="font-size:12px">Заработано</span><span class="g" style="font-size:20px;font-weight:600">$0.00</span></div></div>
+</div>
+<div class="box" style="padding:0 16px">${[['Язык','Русский'],['ПИН-код на вход','Выключен'],['Уведомления','Включены'],['Поддержка','24/7'],['Тарифы и лимиты',''],['Документы','']].map(s=>`<button class="li" style="width:100%;min-height:52px;gap:12px" onclick="toast('${s[0]} — демо')"><span style="flex:1;text-align:left;font-size:15px">${s[0]}</span><span class="muted">${s[1]}</span>${I.right}</button>`).join('')}</div>
+<span style="font-size:12px;color:#8A8D98;text-align:center">${BRAND.name} · драфт v1 · данные демонстрационные</span>`;
+
+function copyRef(){ const t='https://t.me/aboba_cards_bot?start=ref_'+user.id; try{navigator.clipboard.writeText(t)}catch(e){} toast('Ссылка скопирована'); }
+
+// ---------- рендер ----------
+function render(){
+  const sub = !TABS.includes(S.screen);
+  const tab = (id, icon, label) => `<button class="${S.screen===id?'on':''}" onclick="go('${id}')">${icon}${label}</button>`;
+  document.getElementById('app').innerHTML =
+    `<main class="page ${sub?'sub':''}">${V[S.screen]()}</main>` +
+    (sub ? '' : `<nav class="tabs" aria-label="Навигация">${tab('home',I.home,'Главная')}${tab('card',I.card,'Карты')}<div><button class="qr" aria-label="Оплата по QR — скоро" onclick="toast('Оплата по QR: скоро')">${I.qr}</button></div>${tab('services',I.grid,'Сервисы')}${tab('profile',I.user,'Профиль')}</nav>`);
+  if (tg) { sub ? tg.BackButton.show() : tg.BackButton.hide(); }
+}
+render();
+</script>
+</body>
+</html>
