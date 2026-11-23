@@ -6,313 +6,422 @@
 <title>Aboba Card</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Unbounded:wght@500;600;700;800&family=JetBrains+Mono:wght@400;700;800&display=swap" rel="stylesheet">
 <style>
-:root{
-  --accent:#6D4AFF; --accent-soft:#B3A4FF; --accent-bg:#6D4AFF29; --accent-line:#6D4AFF55; --card-bg:#4A3399; --plus-bg:#5A3DD6;
-  --bg:#0E0F13; --s1:#17181D; --s2:#1F2128; --s3:#23252D; --line:#2A2C35; --tx:#F2F3F5; --mu:#A0A3AE; --ok:#3DDC97; --bad:#FF8A80;
-}
+:root{--accent:#6D4AFF;--soft:#B3A4FF;--abg:#6D4AFF29;--card:#4A3399;--bg:#0E0F13;--s1:#17181D;--s2:#1F2128;--s3:#23252D;--line:#2A2C35;--tx:#F2F3F5;--mu:#A0A3AE;--ok:#3DDC97;--bad:#FF8A80}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{margin:0;background:var(--bg);color:var(--tx);font-family:Inter,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+html,body{margin:0;background:var(--bg);color:var(--tx);font-family:Manrope,system-ui,sans-serif;-webkit-font-smoothing:antialiased;overscroll-behavior:none}
 a{color:inherit;text-decoration:none}
 button{font:inherit;color:inherit;border:0;background:none;padding:0;cursor:pointer}
-input{font:inherit}
-input::placeholder{color:#8A8D98}
-.g{font-family:'Space Grotesk',sans-serif}
-#app{min-height:100vh;display:flex;flex-direction:column}
-.page{flex:1;padding:16px 16px 110px;display:flex;flex-direction:column;gap:18px;animation:in .22s ease}
-.page.sub{padding-bottom:120px}
+input{font:inherit}input::placeholder{color:#8A8D98}
+.u{font-family:Unbounded,sans-serif}.mono{font-family:'JetBrains Mono',monospace}
+.row{display:flex;align-items:center}.col{display:flex;flex-direction:column}.between{justify-content:space-between}
+.mu{color:var(--mu)}
+.page{min-height:100vh;padding:16px 16px 100px;display:flex;flex-direction:column;gap:18px;animation:in .25s ease}
+.page.sub{padding-bottom:110px}.page.full{padding:0}
 @keyframes in{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
-.row{display:flex;align-items:center}
-.between{justify-content:space-between}
-.col{display:flex;flex-direction:column}
-.muted{color:var(--mu)}
-.h1{font-size:24px;font-weight:600}
-.h2{font-size:17px;font-weight:600}
+.h1{font-family:Unbounded,sans-serif;font-weight:600;font-size:22px}
+.h2{font-family:Unbounded,sans-serif;font-weight:600;font-size:16px}
 .box{background:var(--s1);border-radius:20px}
 .list{padding:4px 16px}
-.li{display:flex;align-items:center;justify-content:space-between;padding:13px 0;border-bottom:1px solid var(--s3);font-size:14px}
+.li{display:flex;align-items:center;justify-content:space-between;padding:13px 0;border-bottom:1px solid var(--s3);font-size:14px;gap:12px}
 .li:last-child{border-bottom:0}
-.iconbtn{width:44px;height:44px;border-radius:14px;background:var(--s1);display:flex;align-items:center;justify-content:center;position:relative}
-.act{display:flex;flex-direction:column;align-items:center;gap:8px;font-size:12px;font-weight:500}
-.act i{width:52px;height:52px;border-radius:18px;background:var(--s3);display:flex;align-items:center;justify-content:center;font-style:normal}
-.act.pri i{background:var(--accent);color:#fff}
-.grid4{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
-.grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
-.grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
 .seg{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px;padding:4px;border-radius:16px;background:var(--s1)}
-.seg button{height:40px;border-radius:12px;font-size:14px;font-weight:600;color:var(--mu)}
+.seg button{height:42px;border-radius:12px;font-size:14px;font-weight:800;color:var(--mu)}
 .seg button.on{background:#2A2C35;color:var(--tx)}
-.chip{height:34px;padding:0 14px;border-radius:17px;background:var(--s1);border:1px solid var(--line);display:inline-flex;align-items:center;font-size:13px;font-weight:500}
-.pill{height:44px;border-radius:14px;background:var(--s1);font-size:14px;font-weight:600}
-.pill.on{background:var(--accent);color:#fff}
-.cta{height:54px;border-radius:16px;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:600;width:100%}
-.bottom{position:fixed;left:0;right:0;bottom:0;padding:12px 16px calc(16px + env(safe-area-inset-bottom));background:var(--bg);border-top:1px solid #1C1D23;display:flex;flex-direction:column;gap:8px;z-index:5}
-.tx{display:flex;align-items:center;gap:12px;padding:10px 0}
-.tx .m{width:40px;height:40px;border-radius:13px;background:var(--s1);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:#C9CBD3;flex-shrink:0}
-.note{display:flex;gap:10px;padding:14px;border-radius:16px;background:#1A1B21;border:1px solid var(--line);font-size:13px;line-height:1.5;color:#C9CBD3}
-nav.tabs{position:fixed;left:0;right:0;bottom:0;height:calc(76px + env(safe-area-inset-bottom));padding:8px 12px calc(14px + env(safe-area-inset-bottom));background:#121318;border-top:1px solid var(--s3);display:grid;grid-template-columns:repeat(5,minmax(0,1fr));align-items:center;z-index:5}
-nav.tabs button{display:flex;flex-direction:column;align-items:center;gap:4px;font-size:11px;font-weight:500;color:var(--mu)}
-nav.tabs button.on{color:var(--accent-soft);font-weight:600}
-nav.tabs .qr{width:54px;height:54px;margin:-26px auto 0;border-radius:20px;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 5px var(--bg)}
-.card{border-radius:20px;position:relative;overflow:hidden;box-shadow:0 18px 40px rgba(0,0,0,.45);color:#fff;margin:0 auto}
-.card .wm{position:absolute;font-weight:700;line-height:1;color:rgba(255,255,255,.07)}
-.logo{border-radius:9px;background:#fff;font-weight:700;display:flex;align-items:center;justify-content:center}
-.toast{position:fixed;left:50%;top:16px;transform:translateX(-50%);background:#2A2C35;color:var(--tx);padding:10px 16px;border-radius:12px;font-size:14px;z-index:20;animation:in .2s ease}
-details{border-top:1px solid var(--s3)}
-details summary{list-style:none;min-height:48px;display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:14px;cursor:pointer}
-details summary::-webkit-details-marker{display:none}
-details[open] summary svg{transform:rotate(180deg)}
-details p{margin:0 0 14px;font-size:13px;line-height:1.5;color:var(--mu)}
-.field{height:52px;padding:0 16px;border-radius:16px;border:1px solid var(--line);background:var(--s1);color:var(--tx);font-size:15px;outline:none;width:100%}
-.field:focus{border-color:var(--accent)}
+.pill{height:36px;padding:0 14px;border-radius:18px;background:var(--s1);color:#C9CBD3;font-size:13px;font-weight:800;white-space:nowrap;flex-shrink:0}
+.pill.on{background:var(--tx);color:var(--bg)}
+.hs{display:flex;gap:8px;overflow-x:auto;margin:0 -16px;padding:0 16px;scrollbar-width:none}.hs::-webkit-scrollbar{display:none}
+.cta{height:54px;border-radius:16px;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;width:100%}
+.cta.off{background:var(--s3);color:#8E909A}
+.btn2{height:48px;border-radius:14px;background:var(--s2);font-size:14px;font-weight:800;display:flex;align-items:center;justify-content:center}
+.bottom{position:fixed;left:0;right:0;bottom:0;padding:12px 16px calc(16px + env(safe-area-inset-bottom));background:var(--bg);border-top:1px solid #1C1D23;z-index:5;display:flex;flex-direction:column;gap:8px}
+.tx{display:flex;align-items:center;gap:12px;padding:9px 0;width:100%;text-align:left}
+.tx .m{width:40px;height:40px;border-radius:13px;background:var(--s1);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#C9CBD3;flex-shrink:0}
+.tx .m.bad{background:#3A1E1E;color:var(--bad)}
+nav.tabs{position:fixed;left:0;right:0;bottom:0;height:calc(72px + env(safe-area-inset-bottom));padding:8px 12px calc(12px + env(safe-area-inset-bottom));background:#121318;border-top:1px solid var(--s3);display:grid;grid-template-columns:repeat(4,minmax(0,1fr));align-items:center;z-index:5}
+nav.tabs button{display:flex;flex-direction:column;align-items:center;gap:4px;font-size:11px;font-weight:600;color:var(--mu)}
+nav.tabs button.on{color:var(--soft);font-weight:800}
+.note{display:flex;gap:10px;padding:12px 14px;border-radius:14px;background:#1A1B21;border:1px solid var(--line);font-size:13px;line-height:1.45;color:#C9CBD3}
+.warn{background:#2A1F12;border-color:#5A3F1A;color:#F1DDB8}
+.chip{height:24px;padding:0 9px;border-radius:12px;font-size:11px;font-weight:800;display:inline-flex;align-items:center}
+.toast{position:fixed;left:50%;top:14px;transform:translateX(-50%);background:#2A2C35;padding:10px 16px;border-radius:12px;font-size:14px;font-weight:700;z-index:50;animation:in .2s ease;white-space:nowrap}
+.sheetWrap{position:fixed;inset:0;z-index:30;display:flex;flex-direction:column;justify-content:flex-end}
+.sheetBg{position:absolute;inset:0;background:rgba(0,0,0,.6);animation:fade .2s ease}
+.sheet{position:relative;border-radius:26px 26px 0 0;background:#15161B;border-top:1px solid var(--line);padding:10px 18px calc(22px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:14px;animation:up .3s cubic-bezier(.2,.8,.2,1)}
+.grab{align-self:center;width:40px;height:5px;border-radius:3px;background:#34363F}
+@keyframes up{from{transform:translateY(100%)}to{transform:none}}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+/* cards */
+.cardf{position:relative;overflow:hidden;color:#fff}
+.wm{position:absolute;font-family:Unbounded,sans-serif;font-weight:800;line-height:1;pointer-events:none}
+.chipg{position:absolute;border-radius:6px;background:#E8D9A8}
+.flip{transition:transform .7s cubic-bezier(.2,.8,.2,1);transform-style:preserve-3d;position:relative;width:100%;height:100%}
+.face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;overflow:hidden}
+/* onboarding */
+@keyframes enter{0%{opacity:0;transform:translateY(300px) rotateX(35deg) rotateY(0) scale(.55)}12%{opacity:1}72%{transform:translateY(-8px) rotateX(6deg) rotateY(-700deg) scale(1.03)}100%{opacity:1;transform:translateY(0) rotateX(4deg) rotateY(-730deg) scale(1)}}
+@keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes glare{0%{transform:translateX(-140%)}100%{transform:translateX(160%)}}
+@keyframes glow{from{opacity:0;transform:scale(.6)}to{opacity:1;transform:scale(1)}}
+.ob .card{animation:enter 2.1s cubic-bezier(.16,.84,.24,1) both}
+.ob .glowA{animation:glow 1.6s ease .3s both}
+.ob .sheen{animation:glare 1s ease 2.05s both}
+.ob .f1{animation:rise .5s ease 1.55s both}.ob .f2{animation:rise .5s ease 1.8s both}.ob .f3{animation:rise .6s ease 2.2s both}.ob .f4{animation:rise .6s ease 2.45s both}
+/* receipt */
+@keyframes print{0%{transform:translateY(-100%)}12%{transform:translateY(-88%)}30%{transform:translateY(-62%)}48%{transform:translateY(-40%)}66%{transform:translateY(-20%)}84%{transform:translateY(-6%)}100%{transform:translateY(0)}}
+.printing{animation:print 1.8s cubic-bezier(.3,.7,.3,1) both}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.25}}.pulse{animation:pulse 1.4s ease infinite}
+.seg-bar span{transition:flex-grow .6s cubic-bezier(.2,.8,.2,1)}
+@media (prefers-reduced-motion: reduce){.ob .card,.ob .glowA,.ob .sheen,.ob .f1,.ob .f2,.ob .f3,.ob .f4,.printing,.pulse{animation:none!important}}
 </style>
 </head>
 <body>
 <div id="app"></div>
 <script>
+'use strict';
 const tg = window.Telegram ? window.Telegram.WebApp : null;
+const inTg = !!(tg && tg.initData);
 const P = new URLSearchParams(location.search);
 
-// ---------- бренд: один акцент, остальное считается ----------
-function mix(hex, to, t){const a=parseInt(hex.slice(1),16),b=parseInt(to.slice(1),16);const c=s=>Math.round(((a>>s)&255)*(1-t)+((b>>s)&255)*t);return '#'+[16,8,0].map(s=>c(s).toString(16).padStart(2,'0')).join('')}
-const BRAND = { name: P.get('name') || 'Aboba Card', mark: (P.get('mark') || 'A').slice(0,2), accent: '#' + (P.get('accent') || '6D4AFF').replace('#','') };
-(function applyBrand(){
-  const r=document.documentElement.style, a=BRAND.accent;
-  r.setProperty('--accent',a); r.setProperty('--accent-soft',mix(a,'#FFFFFF',.45)); r.setProperty('--accent-bg',a+'29');
-  r.setProperty('--accent-line',a+'55'); r.setProperty('--card-bg',mix(a,'#0E0F13',.35)); r.setProperty('--plus-bg',mix(a,'#0E0F13',.2));
-  document.title = BRAND.name;
-})();
+/* ---------- бренд: один акцент + название + знак ---------- */
+function mix(hex,to,t){const a=parseInt(hex.slice(1),16),b=parseInt(to.slice(1),16);const c=s=>Math.round(((a>>s)&255)*(1-t)+((b>>s)&255)*t);return '#'+[16,8,0].map(s=>c(s).toString(16).padStart(2,'0')).join('')}
+const BRAND={name:P.get('name')||'Aboba Card',mark:(P.get('mark')||'A').slice(0,2),accent:'#'+(P.get('accent')||'6D4AFF').replace('#','')};
+(()=>{const r=document.documentElement.style,a=BRAND.accent;r.setProperty('--accent',a);r.setProperty('--soft',mix(a,'#FFFFFF',.45));r.setProperty('--abg',a+'29');r.setProperty('--card',mix(a,'#0E0F13',.2));document.title=BRAND.name})();
+const A=BRAND.accent, SOFT=mix(A,'#FFFFFF',.45), CARD=mix(A,'#0E0F13',.2), M=BRAND.mark;
 
-// ---------- Telegram ----------
-const user = (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) || { first_name: 'Гость', username: 'guest', id: 0 };
-if (tg) {
-  tg.ready(); tg.expand();
-  try { tg.setHeaderColor('#0E0F13'); tg.setBackgroundColor('#0E0F13'); if (tg.setBottomBarColor) tg.setBottomBarColor('#121318'); } catch(e){}
-  tg.BackButton.onClick(() => back());
-}
-const haptic = (t='light') => { try { tg && tg.HapticFeedback.impactOccurred(t); } catch(e){} };
+/* ---------- Telegram ---------- */
+const user=(tg&&tg.initDataUnsafe&&tg.initDataUnsafe.user)||{first_name:'Гость',username:'guest',id:0};
+if(tg){tg.ready();tg.expand();try{tg.setHeaderColor('#0E0F13');tg.setBackgroundColor('#0E0F13');tg.setBottomBarColor&&tg.setBottomBarColor('#121318')}catch(e){}tg.BackButton.onClick(()=>back())}
+const hap=(t='light')=>{try{tg&&tg.HapticFeedback.impactOccurred(t)}catch(e){}};
+const ok=()=>{try{tg&&tg.HapticFeedback.notificationOccurred('success')}catch(e){}};
+const store={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
 
-// ---------- состояние ----------
-const S = { screen:'home', stack:[], hide:false, cardType:'online', show:false, frozen:false, method:'rub', rub:5000, usdt:50, net:'TRC-20', svc:'steam', steam:1000, region:'Популярное', hasCard:true };
-const TABS = ['home','card','services','profile'];
-function go(screen){ haptic(); if (!TABS.includes(screen)) S.stack.push(S.screen); else S.stack=[]; S.screen=screen; render(); window.scrollTo(0,0); }
-function back(){ haptic(); S.screen = S.stack.pop() || 'home'; render(); window.scrollTo(0,0); }
-function set(p){ Object.assign(S,p); render(); }
-function toast(t){ const el=document.createElement('div'); el.className='toast'; el.textContent=t; document.body.appendChild(el); setTimeout(()=>el.remove(),1800); try{tg&&tg.HapticFeedback.notificationOccurred('success')}catch(e){} }
-const fmt = n => String(n).replace(/\B(?=(\d{3})+(?!\d))/g,' ');
+/* ---------- состояние ---------- */
+const S={screen:store.get('aboba_seen')?'home':'onboarding',stack:[],cur:'rub',
+  card:0,flipped:false,frozen:[false,false],limits:false,
+  st:0,spin:0,spinShown:0,
+  m:'rub',rub:5000,usdt:50,net:0,addr:false,
+  cat:'Все',
+  steamChecked:false,steamAmt:1000,steamSrc:0,
+  ev:'buy',scope:0,dest:0,etype:'gb',plan:1,compat:false,inst:0,
+  rtype:'card',
+  hf:'Все',
+  plusMode:1,plus:false,pin:true,push:true};
+const TABS=['home','card','catalog','profile'];
+function go(s,extra){hap();if(extra)Object.assign(S,extra);if(TABS.includes(s))S.stack=[];else S.stack.push(S.screen);S.screen=s;S.flipped=false;S.limits=false;S.addr=false;render();scrollTo(0,0)}
+function back(){hap();S.screen=S.stack.pop()||'home';S.addr=false;S.limits=false;render();scrollTo(0,0)}
+function set(p){Object.assign(S,p);render()}
+function toast(t){const e=document.createElement('div');e.className='toast';e.textContent=t;document.body.appendChild(e);setTimeout(()=>e.remove(),1700)}
+const sp=n=>String(n).replace(/\B(?=(\d{3})+(?!\d))/g,' ');
+const R=92;
+const fr=v=>sp(Math.round(v))+' ₽';
+const fd=d=>'$'+sp(Math.floor(d))+'.'+String(Math.round((d%1)*100)).padStart(2,'0');
 
-// ---------- иконки ----------
-const I = {
-  bell:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 1 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>',
-  chat:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>',
-  eye:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>',
-  plus:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>',
-  card:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="3"/><path d="M2 10h20"/></svg>',
-  send:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M8 7h9v9"/></svg>',
-  swap:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3l4 4-4 4M3 7h18M7 21l-4-4 4-4M21 17H3"/></svg>',
-  home:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/></svg>',
-  grid:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/></svg>',
-  user:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>',
-  qr:'<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3h-3zM20 14v.01M14 20h.01M17 20h4v-3"/></svg>',
-  game:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="12" rx="4"/><path d="M7 11v4M5 13h4"/><circle cx="16" cy="12" r="1"/><circle cx="18" cy="14" r="1"/></svg>',
-  sim:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2h8l4 4v16H6z"/><rect x="9" y="11" width="6" height="7" rx="1"/></svg>',
-  gift:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="8" width="18" height="13" rx="2"/><path d="M12 8v13M3 12h18"/></svg>',
-  snow:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M4.9 4.9l14.2 14.2M2 12h20M4.9 19.1 19.1 4.9"/></svg>',
-  help:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3M12 17h.01"/></svg>',
-  info:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#A0A3AE" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:1px"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>',
-  chev:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#A0A3AE" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>',
-  right:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#A0A3AE" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>',
-  check:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>',
-  bolt:'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 3 14h9l-1 8 10-12h-9z"/></svg>',
-  search:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#A0A3AE" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>'
-};
+/* ---------- иконки ---------- */
+const sv=(p,s=22,w=1.8)=>`<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${p}</svg>`;
+const I={home:'<path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/>',card:'<rect x="2" y="5" width="20" height="14" rx="3"/><path d="M2 10h20"/>',grid:'<rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/>',user:'<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>',plus:'<path d="M12 5v14M5 12h14"/>',minus:'<path d="M5 12h14"/>',send:'<path d="M7 17 17 7M8 7h9v9"/>',eye:'<path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>',snow:'<path d="M12 2v20M4.9 4.9l14.2 14.2M2 12h20M4.9 19.1 19.1 4.9"/>',sliders:'<path d="M4 21V14M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/>',back:'<path d="m15 18-6-6 6-6"/>',right:'<path d="m9 18 6-6-6-6"/>',down:'<path d="m6 9 6 6 6-6"/>',check:'<path d="M20 6 9 17l-5-5"/>',search:'<circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/>',info:'<circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/>',alert:'<path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/>',plane:'<path d="m22 2-7 20-4-9-9-4z"/><path d="M22 2 11 13"/>',nfc:'<path d="M6 8.5a6 6 0 0 1 0 7M10 6a10 10 0 0 1 0 12M14 3.5a14 14 0 0 1 0 17"/>'};
+const backBar=t=>inTg?`<div class="row" style="min-height:28px"><span class="h1" style="font-size:19px">${t}</span></div>`:`<div class="row" style="gap:6px;margin:-4px 0 -6px -10px"><button aria-label="Назад" onclick="back()" style="width:44px;height:44px;display:flex;align-items:center;justify-content:center">${sv(I.back,22,2)}</button><span class="h1" style="font-size:18px">${t}</span></div>`;
+const curToggle=()=>`<div role="radiogroup" aria-label="Валюта" class="row" style="gap:2px;padding:3px;border-radius:16px;background:var(--s1)">${[['rub','₽'],['usd','$']].map(([k,s])=>`<button role="radio" aria-checked="${S.cur===k}" onclick="hap();set({cur:'${k}'})" class="u" style="width:44px;height:34px;border-radius:13px;font-weight:700;font-size:15px;${S.cur===k?'background:var(--tx);color:var(--bg)':'color:var(--mu)'}">${s}</button>`).join('')}</div>`;
+const txRow=(t,onclick)=>`<button class="tx" onclick="${onclick||''}"><span class="m ${t.bad?'bad':''}">${t.m}</span><span class="col" style="gap:2px;flex:1"><span style="font-size:15px;font-weight:700">${t.n}</span><span style="font-size:12px;color:${t.bad?'var(--bad)':'var(--mu)'}">${t.s}</span></span><span style="font-size:15px;font-weight:800;color:${t.bad?'#8E909A':t.a[0]==='+'?'var(--ok)':'var(--tx)'}">${t.a}</span></button>`;
 
-// ---------- компоненты ----------
-const card = (w, type, inner) => {
-  const h = Math.round(w * 0.625), online = type === 'online';
-  const bg = online ? 'var(--card-bg)' : '#1A1B20';
-  return `<div class="card" style="width:${w}px;height:${h}px;background:${bg}">
-    <div class="wm g" style="right:-30px;bottom:-${Math.round(h*0.35)}px;font-size:${Math.round(h*1.27)}px">${BRAND.mark}</div>
-    <div class="row" style="position:absolute;left:20px;top:20px;gap:8px">
-      <div class="logo g" style="width:30px;height:30px;font-size:16px;color:${online?'var(--accent)':'#1A1B20'}">${BRAND.mark}</div>
-      <span style="font-weight:600;font-size:15px">${BRAND.name}</span></div>
-    <span style="position:absolute;right:20px;top:24px;font-size:12px;font-weight:600;opacity:.85;letter-spacing:.5px">${online?'ONLINE':'NFC · WALLET'}</span>
-    ${inner || '<div style="position:absolute;left:20px;top:'+Math.round(h*0.42)+'px;width:40px;height:30px;border-radius:6px;background:#E8D9A8"></div>'}
-    <span class="g" style="position:absolute;left:20px;bottom:22px;font-size:16px;letter-spacing:2px">${S.show && inner ? '0000 0000 0000 4417' : '•••• •••• •••• ' + (inner ? '4417' : '••••')}</span>
-    <span style="position:absolute;right:20px;bottom:22px;font-size:13px;font-weight:700">USD</span>
-    ${S.frozen && inner ? `<div class="col" style="position:absolute;inset:0;background:rgba(14,15,19,.72);align-items:center;justify-content:center;gap:8px;color:#DDEFFF">${I.snow}<span style="font-weight:600">Карта заморожена</span></div>` : ''}
-  </div>`;
-};
-const txRow = t => `<div class="tx"><span class="m">${t[0]}</span><div class="col" style="gap:2px;flex:1"><span style="font-size:15px;font-weight:500">${t[1]}</span><span style="font-size:12px;color:${t[4]||'var(--mu)'}">${t[2]}</span></div><span class="g" style="font-size:15px;font-weight:600;color:${t[3][0]==='+'?'var(--ok)':(t[5]||'var(--tx)')}">${t[3]}</span></div>`;
-const back_ = title => `<div class="row" style="gap:8px;margin:-4px 0 -6px -8px">${tg && tg.platform !== 'unknown' ? '' : `<button class="iconbtn" style="background:none" aria-label="Назад" onclick="back()"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg></button>`}<span class="h2">${title}</span></div>`;
+/* ---------- данные ---------- */
+const CARDS=[
+ {n:'Онлайн •• 4417',tag:'ONLINE',bal:'$84.20',last:'4417',bg:CARD,logoBg:'#fff',logoFg:A,spent:'$46.10',pct:38,
+  tx:[{m:'AI',n:'ChatGPT Plus',s:'Сегодня, 14:02',a:'−$20.00',r:'card'},{m:'!',n:'Midjourney',s:'Отказ: не хватило средств',a:'$30.00',bad:1},{m:'Sp',n:'Spotify',s:'15 ноя',a:'−$11.99'},{m:'+',n:'Пополнение карты',s:'С кошелька · 12 ноя',a:'+$100.00'}]},
+ {n:'Wallet •• 9052',tag:'NFC · WALLET',bal:'$310.00',last:'9052',bg:'#16171C',logoBg:A,logoFg:'#fff',spent:'$128.40',pct:62,
+  tx:[{m:'Cf',n:'Кофейня, Тбилиси',s:'Apple Pay · вчера',a:'−$6.40'},{m:'Tx',n:'Такси',s:'Google Pay · 20 ноя',a:'−$9.80'},{m:'+',n:'Пополнение карты',s:'С кошелька · 19 ноя',a:'+$200.00'}]}];
+const STORE=[
+ {n:'Онлайн',tag:'ONLINE',title:'Онлайн-карта',sub:'Подписки, AI, игры, магазины',price:'[$5–10]',cta:'Выпустить за [$5–10]',bg:CARD,fg:'#fff',wm:'rgba(255,255,255,.08)',logoBg:'#fff',logoFg:A,sheen:.16,nfc:0,glow:A+'66',
+  stats:[['Пополнение','[%]'],['Операция','[$]'],['Лимит / мес','[сумма]'],['Готова через','2 минуты']],feats:[['Онлайн-оплата и подписки',1],['3-D Secure, коды в боте',1],['Apple Pay · Google Pay',0],['Оплата в магазинах',0],['Пластик с доставкой',0]]},
+ {n:'Wallet',tag:'NFC · WALLET',title:'Карта для телефона',sub:'Apple Pay и Google Pay, магазины и поездки',price:'[цена]',cta:'Выпустить за [цена]',bg:'#141519',fg:'#fff',wm:'rgba(255,255,255,.06)',logoBg:A,logoFg:'#fff',sheen:.12,nfc:1,glow:'rgba(170,175,190,.22)',
+  stats:[['Пополнение','[%]'],['Операция','[$]'],['Лимит / мес','[сумма]'],['Страна выпуска','[страна]']],feats:[['Онлайн-оплата и подписки',1],['3-D Secure, коды в боте',1],['Apple Pay · Google Pay',1],['Оплата в магазинах',1],['Пластик с доставкой',0]]},
+ {n:'Пластик',tag:'PHYSICAL',title:'Физическая карта',sub:'Пластик с доставкой, банкоматы и терминалы',price:'[цена]',cta:'Заказать за [цена]',bg:'linear-gradient(135deg,#DADDE3 0%,#A9AEB8 45%,#E7E9ED 70%,#9EA3AD 100%)',fg:'#16171B',wm:'rgba(0,0,0,.07)',logoBg:'#16171B',logoFg:'#fff',sheen:.55,nfc:1,glow:'rgba(220,224,232,.25)',
+  stats:[['Доставка','[срок]'],['Операция','[$]'],['Лимит / мес','[сумма]'],['Снятие наличных','[%]']],feats:[['Онлайн-оплата и подписки',1],['3-D Secure, коды в боте',1],['Apple Pay · Google Pay',1],['Оплата в магазинах',1],['Пластик с доставкой',1]]}];
+const NETS=[{name:'TRC-20',chain:'Tron',m:'TRX',ibg:'#3A1518',ifg:'#FF6B73',eta:'1–3 минуты',addr:'T… [адрес кошелька в сети Tron]'},{name:'ERC-20',chain:'Ethereum',m:'ETH',ibg:'#1E2340',ifg:'#A3AEFF',eta:'2–5 минут',addr:'0x… [адрес кошелька в сети Ethereum]'},{name:'BEP-20',chain:'BNB Chain',m:'BNB',ibg:'#3A3112',ifg:'#F5C84B',eta:'1–3 минуты',addr:'0x… [адрес кошелька в сети BNB Chain]'},{name:'TON',chain:'The Open Network',m:'TON',ibg:'#12303F',ifg:'#6FC8F5',eta:'до минуты',addr:'UQ… [адрес кошелька в сети TON]'}];
+const CC={games:['#1B2838','#C7D5E0'],subs:['#2A1838','#E2A8FF'],apps:['#1E2A44','#8FB8FF'],ai:['#13302A','#74D7B8'],travel:['#123A2C','#7BE3B5'],gift:['#3A2A12','#F5C46B']};
+const SERVICES=[['St','Steam','Пополнение','Игры','games','steam'],['PS','PlayStation','Карты оплаты','Игры','games'],['Xb','Xbox','Game Pass','Игры','games'],['Ni','Nintendo','eShop','Игры','games'],['AS','App Store','Пополнение','Приложения','apps'],['GP','Google Play','Пополнение','Приложения','apps'],['Sp','Spotify','Premium','Подписки','subs'],['Nf','Netflix','Подписка','Подписки','subs'],['YT','YouTube','Premium','Подписки','subs'],['AI','ChatGPT','Plus','AI','ai'],['Cl','Claude','Pro','AI','ai'],['Mj','Midjourney','Подписка','AI','ai'],['eS','eSIM','150+ стран','Поездки','travel','esim'],['Ab','Airbnb','Подарочная','Поездки','travel'],['Am','Amazon','Подарочная','Подарки','gift'],['Dc','Discord','Nitro','Подписки','subs'],['Tw','Twitch','Подписка','Подписки','subs'],['Ep','Epic Games','Пополнение','Игры','games']];
+const SCOPES=[{n:'Страны',label:'ОДНА СТРАНА',list:[['TR','Турция','Местные операторы, 4G/5G'],['TH','Таиланд','Местные операторы, 4G/5G'],['AE','ОАЭ','Местные операторы, 4G/5G'],['GE','Грузия','Местные операторы, 4G'],['VN','Вьетнам','Местные операторы, 4G']]},{n:'Регионы',label:'НЕСКОЛЬКО СТРАН',list:[['EU','Европа','39 стран на одной eSIM'],['AS','Азия','14 стран на одной eSIM'],['ME','Ближний Восток','10 стран на одной eSIM']]},{n:'Весь мир',label:'ПО ВСЕМУ МИРУ',list:[['GL','Глобальная','120+ стран, одна eSIM на все поездки']]}];
+const HIST=[['СЕГОДНЯ','AI','ChatGPT Plus','Онлайн •• 4417 · 14:02','−$20.00','Карты','card'],['СЕГОДНЯ','!','Midjourney','Отказ: не хватило средств','$30.00','Карты','',1],['ВЧЕРА','₽','Пополнение по СБП','Кошелёк · 19:40','+5 000 ₽','Пополнения','topup'],['ВЧЕРА','Cf','Кофейня, Тбилиси','Wallet •• 9052 · Apple Pay','−$6.40','Карты','card'],['18 НОЯБРЯ','St','Steam','Пополнение аккаунта gaben','−1 200 ₽','Сервисы','steam'],['18 НОЯБРЯ','eS','eSIM · Турция','5 ГБ на 15 дней','−[цена]','Сервисы','esim'],['17 НОЯБРЯ','₮','Пополнение USDT','TRC-20','+50.00 USDT','Пополнения','topup'],['17 НОЯБРЯ',M,'Выпуск карты','Онлайн •• 4417','−[цена]','Карты','card']];
+const RECEIPTS={
+ card:{head:'Карта выпущена',op:'ВЫПУСК КАРТЫ',id:'000184',total:'[цена]',rows:[['КАРТА','ОНЛАЙН •• 4417'],['ВАЛЮТА','USD'],['ВЫПУСК','[цена]'],['КОМИССИЯ','[$]'],['С БАЛАНСА','КОШЕЛЁК ₽']]},
+ steam:{head:'Steam пополнен',op:'ПОПОЛНЕНИЕ STEAM',id:'000185',total:'1 000 ₽',rows:[['АККАУНТ','gaben'],['ЗАЧИСЛЕНО','1 000 ₽'],['КОМИССИЯ','[%]'],['СТАТУС','ДОСТАВЛЕНО']]},
+ topup:{head:'Кошелёк пополнен',op:'ПОПОЛНЕНИЕ',id:'000186',total:'+5 000 ₽',rows:[['СПОСОБ','СБП'],['БАНК','[банк]'],['СУММА','5 000 ₽'],['КОМИССИЯ','[%]'],['ЗАЧИСЛЕНО ЗА','38 СЕК']]},
+ esim:{head:'eSIM куплена',op:'ESIM',id:'000187',total:'[цена]',rows:[['СТРАНА','ТУРЦИЯ'],['ПАКЕТ','5 ГБ · 15 ДНЕЙ'],['СРОК','С ПОДКЛЮЧЕНИЯ'],['СТАТУС','ГОТОВА К УСТАНОВКЕ']]}};
 
-// ---------- экраны ----------
-const V = {};
-V.home = () => `
-<div class="row between">
-  <div class="row" style="gap:10px">
-    <div class="g" style="width:36px;height:36px;border-radius:11px;background:var(--accent);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:18px;color:#fff">${BRAND.mark}</div>
-    <div class="col"><span style="font-weight:600;font-size:15px">${BRAND.name}</span><span class="muted" style="font-size:12px">@${user.username || user.first_name}</span></div>
+/* ---------- экраны ---------- */
+const V={};
+
+V.onboarding=()=>`<div class="ob col" style="min-height:100vh;position:relative;overflow:hidden">
+ <div class="glowA" aria-hidden="true" style="position:absolute;left:50%;top:150px;width:400px;height:400px;margin-left:-200px;border-radius:200px;background:${A}70;filter:blur(80px)"></div>
+ <div style="position:relative;flex:1;display:flex;align-items:center;justify-content:center;perspective:1100px;min-height:380px">
+  <div class="card cardf" style="width:300px;height:190px;border-radius:22px;background:${CARD};box-shadow:0 34px 70px rgba(0,0,0,.55),inset 0 1px 0 rgba(255,255,255,.2)">
+   <div class="wm" style="right:-26px;bottom:-70px;font-size:250px;color:rgba(255,255,255,.08)">${M[0]}</div>
+   <div class="sheen" style="position:absolute;top:0;bottom:0;left:0;width:60%;background:linear-gradient(105deg,rgba(255,255,255,0),rgba(255,255,255,.35) 50%,rgba(255,255,255,0))"></div>
+   <div class="f1 row" style="position:absolute;left:18px;top:18px;gap:8px"><div class="u" style="width:30px;height:30px;border-radius:9px;background:#fff;color:${A};font-weight:800;font-size:14px;display:flex;align-items:center;justify-content:center">${M}</div><span style="font-weight:800;font-size:15px">${BRAND.name}</span></div>
+   <div class="f1 chipg" style="left:18px;top:76px;width:38px;height:28px"></div>
+   <span class="f2 mono" style="position:absolute;left:18px;bottom:20px;font-weight:700;font-size:15px;letter-spacing:2px">•••• •••• •••• 4417</span>
+   <span class="f2" style="position:absolute;right:18px;bottom:18px;font-size:13px;font-weight:800">USD</span>
   </div>
-  <div class="row" style="gap:8px">
-    <button class="iconbtn" aria-label="Уведомления" onclick="toast('Уведомлений пока нет')">${I.bell}<span style="position:absolute;top:10px;right:11px;width:8px;height:8px;border-radius:4px;background:var(--accent)"></span></button>
-    <button class="iconbtn" aria-label="Поддержка" onclick="toast('Поддержка: скоро')">${I.chat}</button>
-  </div>
-</div>
-<div class="box col" style="position:relative;overflow:hidden;border-radius:24px;padding:20px;gap:18px">
-  <div class="g" aria-hidden="true" style="position:absolute;right:-24px;top:-46px;font-weight:700;font-size:220px;line-height:1;color:var(--accent-bg)">${BRAND.mark}</div>
-  <div class="col" style="gap:6px;position:relative">
-    <button class="row muted" style="gap:6px;font-size:13px;align-self:flex-start" onclick="set({hide:!S.hide})">Баланс кошелька ${I.eye}</button>
-    <span class="g" style="font-weight:600;font-size:40px;letter-spacing:-.5px">${S.hide?'•••••• ₽':'12 480 ₽'}</span>
-    <span class="muted" style="font-size:13px">${S.hide?'≈ •••• USDT':'≈ 136.20 USDT'}</span>
-  </div>
-  <div class="grid4" style="position:relative">
-    <button class="act pri" onclick="go('topup')"><i>${I.plus}</i>Пополнить</button>
-    <button class="act" onclick="go('issue')"><i>${I.card}</i>Карта</button>
-    <button class="act" onclick="toast('Переводы: скоро')"><i>${I.send}</i>Перевести</button>
-    <button class="act" onclick="toast('Обмен: скоро')"><i>${I.swap}</i>Обмен</button>
-  </div>
-</div>
-<button class="box row" style="gap:14px;padding:14px;text-align:left" onclick="go('card')">
-  <div style="width:64px;height:42px;border-radius:8px;background:var(--card-bg);position:relative;flex-shrink:0">
-    <div class="g" style="position:absolute;left:7px;top:7px;width:14px;height:14px;border-radius:4px;background:#fff;color:var(--accent);font-size:9px;font-weight:700;display:flex;align-items:center;justify-content:center">${BRAND.mark}</div>
-    <div style="position:absolute;right:7px;bottom:6px;font-size:8px;color:#fff;opacity:.8;letter-spacing:1px">4417</div></div>
-  <div class="col" style="gap:3px;flex:1"><span style="font-weight:600;font-size:15px">Онлайн •• 4417</span><span class="muted" style="font-size:13px">Подписки, сервисы, AI</span></div>
-  <div class="col" style="gap:3px;align-items:flex-end"><span class="g" style="font-weight:600;font-size:16px">$84.20</span><span style="font-size:12px;color:${S.frozen?'#BFE3FF':'var(--ok)'}">${S.frozen?'Заморожена':'Активна'}</span></div>
-</button>
-<button class="col" style="position:relative;overflow:hidden;gap:6px;padding:18px;border-radius:22px;background:var(--accent-bg);border:1px solid var(--accent-line);text-align:left" onclick="set({cardType:'wallet'});go('issue')">
-  <span style="font-size:12px;font-weight:600;color:var(--accent-soft);text-transform:uppercase;letter-spacing:.6px">Новая карта</span>
-  <span class="g" style="font-weight:600;font-size:20px;max-width:210px">Плати телефоном в Apple Pay и Google Pay</span>
-  <span style="font-size:13px;color:#C9CBD3">Выпуск за 2 минуты · от [цена]</span>
-  <div aria-hidden="true" style="position:absolute;right:-18px;bottom:-14px;width:132px;height:86px;border-radius:14px;background:var(--accent);transform:rotate(-14deg)">
-    <div class="g" style="position:absolute;left:12px;top:12px;width:22px;height:22px;border-radius:6px;background:#fff;color:var(--accent);font-weight:700;font-size:13px;display:flex;align-items:center;justify-content:center">${BRAND.mark}</div></div>
-</button>
-<div class="col" style="gap:12px">
-  <div class="row between"><span class="h2">Сервисы</span><button style="font-size:14px;color:var(--accent-soft)" onclick="go('services')">Все</button></div>
-  <div class="grid3">
-    <button class="box col" style="gap:10px;padding:14px 12px;border-radius:18px;text-align:left" onclick="set({svc:'steam'});go('services')"><span style="width:36px;height:36px;border-radius:12px;background:var(--s3);display:flex;align-items:center;justify-content:center">${I.game}</span><span style="font-size:13px;font-weight:500">Steam</span></button>
-    <button class="box col" style="gap:10px;padding:14px 12px;border-radius:18px;text-align:left" onclick="set({svc:'esim'});go('services')"><span style="width:36px;height:36px;border-radius:12px;background:var(--s3);display:flex;align-items:center;justify-content:center">${I.sim}</span><span style="font-size:13px;font-weight:500">eSIM</span></button>
-    <div class="box col muted" style="gap:10px;padding:14px 12px;border-radius:18px"><span style="width:36px;height:36px;border-radius:12px;background:var(--s3);display:flex;align-items:center;justify-content:center">${I.gift}</span><span style="font-size:13px;font-weight:500">Подарки · скоро</span></div>
-  </div>
-</div>
-<div class="col" style="gap:4px">
-  <div class="row between" style="padding-bottom:8px"><span class="h2">История</span></div>
-  ${[['AI','ChatGPT Plus','Онлайн •• 4417 · сегодня','−$20.00'],['₽','Пополнение по СБП','Кошелёк · вчера','+5 000 ₽'],['St','Steam','Пополнение аккаунта · 18 ноя','−1 200 ₽'],['₮','Пополнение USDT','TRC-20 · 17 ноя','+50.00 USDT']].map(txRow).join('')}
+ </div>
+ <div class="f3 col" style="position:relative;padding:0 24px 6px;gap:10px"><span class="u" style="font-weight:600;font-size:26px;line-height:1.2">Карта за 2 минуты прямо в Telegram</span><span style="font-size:15px;line-height:1.5;color:var(--mu)">Подписки, Apple Pay и Google Pay, пластик. Пополняй рублями или криптой.</span></div>
+ <div class="f4 col" style="position:relative;padding:14px 16px calc(24px + env(safe-area-inset-bottom));gap:6px"><button class="cta" onclick="store.set('aboba_seen','1');go('store')">Выбрать карту</button><button style="height:44px;font-size:14px;font-weight:800;color:var(--mu)" onclick="store.set('aboba_seen','1');go('home')">Сначала осмотреться</button></div>
 </div>`;
 
-V.issue = () => {
-  const on = S.cardType === 'online';
-  const uses = on ? ['ChatGPT','Claude','Midjourney','Netflix','Spotify','Steam','App Store','Airbnb'] : ['Apple Pay','Google Pay','Кафе и магазины','Такси','Отели','Онлайн-покупки'];
-  const tariffs = on ? [['Выпуск','[цена]'],['Пополнение карты','[%]'],['Комиссия за операцию','[$]'],['Конвертация валют','[%]'],['Лимит в месяц','[сумма]'],['Обслуживание','Бесплатно']]
-                     : [['Выпуск','[цена]'],['Пополнение карты','[%]'],['Комиссия за операцию','[$]'],['Лимит в месяц','[сумма]'],['Страна выпуска','[страна]'],['Обслуживание','Бесплатно']];
-  const faq = on ? [['Куда приходит код 3-D Secure?','Код подтверждения приходит сообщением в бот. Сверьте магазин и сумму перед вводом.'],['Где карта не работает?','[Список стран и категорий магазинов, где возможны отказы.]'],['Можно ли вернуть деньги с карты?','Остаток с карты можно вернуть на баланс кошелька в разделе карты.']]
-                 : [['Как добавить карту в Apple Pay?','Откройте карту и нажмите «Добавить в Apple Wallet» — мы покажем шаги.'],['Работает ли в магазинах?','Да, на терминалах с бесконтактной оплатой. [Уточнить страны.]'],['Куда приходит код 3-D Secure?','Код подтверждения приходит сообщением в бот.']];
-  return `${back_('Выпуск карты')}
-<div class="seg"><button class="${on?'on':''}" onclick="haptic();set({cardType:'online'})">Онлайн</button><button class="${on?'':'on'}" onclick="haptic();set({cardType:'wallet'})">Apple Pay · Google Pay</button></div>
-<div style="padding:6px 0 2px">${card(Math.min(320, innerWidth-48), S.cardType)}</div>
-<div class="col" style="gap:6px;align-items:center;text-align:center">
-  <span class="g" style="font-weight:600;font-size:24px">${on?'Онлайн-карта':'Карта для телефона'}</span>
-  <span class="muted" style="font-size:14px;max-width:300px">${on?'Для подписок, AI-сервисов, игр и покупок в зарубежных магазинах':'Добавьте в Apple Pay или Google Pay и платите в поездках и магазинах'}</span>
-  <span class="row" style="margin-top:4px;gap:6px;height:28px;padding:0 12px;border-radius:14px;background:var(--accent-bg);color:var(--accent-soft);font-size:13px;font-weight:600">${I.bolt} Выпуск за 2 минуты</span>
-</div>
-<div class="col" style="gap:10px"><span class="muted" style="font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:.6px">${on?'Работает в сервисах':'Где пригодится'}</span>
-  <div class="row" style="flex-wrap:wrap;gap:8px">${uses.map(u=>`<span class="chip">${u}</span>`).join('')}</div></div>
-<div class="row" style="gap:12px;padding:14px;border-radius:18px;background:#12251C;border:1px solid #1E4A34">
-  <span class="g" style="width:40px;height:40px;border-radius:13px;background:#1B3A2B;color:var(--ok);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;flex-shrink:0">+$</span>
-  <div class="col" style="gap:2px"><span style="font-size:14px;font-weight:600">Бонус после активации</span><span style="font-size:13px;color:#A6C9B6">Вернём [сумма] на баланс после первой покупки</span></div></div>
-<div class="box list"><div class="h2" style="font-size:15px;padding:14px 0 6px">Тарифы</div>
-  ${tariffs.map(t=>`<div class="li"><span class="muted">${t[0]}</span><span style="font-weight:600">${t[1]}</span></div>`).join('')}
-  <div class="li"><span style="color:var(--accent-soft);font-weight:600">С подпиской Plus дешевле</span><button style="font-size:13px;color:var(--accent-soft)" onclick="go('profile')">Подробнее</button></div></div>
-<div class="box list"><div class="h2" style="font-size:15px;padding:14px 0 6px">Частые вопросы</div>
-  ${faq.map(f=>`<details><summary>${f[0]}${I.chev}</summary><p>${f[1]}</p></details>`).join('')}</div>
-<div class="bottom"><button class="cta" onclick="toast('Выпуск карты — демо');setTimeout(()=>go('card'),600)">Выпустить за [цена]</button><span class="muted" style="font-size:12px;text-align:center">Оплата с баланса кошелька · баланс 12 480 ₽</span></div>`;
+V.home=()=>{
+ const rub=S.cur==='rub';
+ const parts=[{n:'Кошелёк, рубли',v:12480,nat:'12 480 ₽',c:A,to:"go('topup')"},{n:'Кошелёк, USDT',v:50*R,nat:'50.00 USDT',c:mix(A,'#FFFFFF',.55),to:"go('topup',{m:'usdt'})"},{n:'Онлайн •• 4417',v:84.2*R,nat:'$84.20 на карте',c:'#3DDC97',to:"go('card',{card:0})"},{n:'Wallet •• 9052',v:310*R,nat:'$310.00 на карте',c:'#E9EAEE',to:"go('card',{card:1})"}];
+ const tot=parts.reduce((s,p)=>s+p.v,0);
+ return `<div class="row between"><div class="row" style="gap:10px"><div class="u" style="width:34px;height:34px;border-radius:11px;background:var(--accent);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:15px;color:#fff">${M}</div><span style="font-weight:800;font-size:16px">${BRAND.name}</span></div>${curToggle()}</div>
+ <div class="box col" style="position:relative;overflow:hidden;border-radius:26px;padding:20px;gap:16px">
+  <div class="wm" style="right:-30px;top:-56px;font-size:230px;color:${A}22">${M[0]}</div>
+  <div class="col" style="position:relative;gap:4px"><span class="mu" style="font-size:13px">Всего денег</span><span class="u" style="font-weight:600;font-size:38px;letter-spacing:-1px;line-height:1.1">${rub?fr(tot):fd(tot/R)}</span><span class="mu" style="font-size:13px">≈ ${rub?fd(tot/R):fr(tot)}</span></div>
+  <div class="row seg-bar" style="position:relative;gap:3px;height:12px;border-radius:6px;overflow:hidden">${parts.map(p=>`<span style="flex-grow:${Math.round(p.v)};flex-basis:0;height:100%;background:${p.c}"></span>`).join('')}</div>
+  <div class="col" style="position:relative;gap:10px">${parts.map(p=>`<button class="row" style="gap:10px;text-align:left" onclick="${p.to}"><span style="width:10px;height:10px;border-radius:3px;background:${p.c};flex-shrink:0"></span><span style="flex:1;font-size:14px;font-weight:600;color:#C9CBD3">${p.n}</span><span class="col" style="align-items:flex-end"><span style="font-size:14px;font-weight:800">${rub?fr(p.v):fd(p.v/R)}</span><span style="font-size:11px;color:#8E909A">${p.nat}</span></span></button>`).join('')}</div>
+  <span style="position:relative;font-size:11px;color:#8E909A">Курс для примера: 1 $ = 92 ₽, 1 USDT ≈ 1 $</span>
+ </div>
+ <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><button class="cta" style="height:52px;font-size:15px;gap:8px" onclick="go('topup')">${sv(I.plus,20,2.2)}Пополнить</button><button class="btn2" style="height:52px;font-size:15px;gap:8px" onclick="go('store')">${sv(I.card,20)}Новая карта</button></div>
+ <div class="col" style="gap:2px"><div class="row between" style="padding-bottom:6px"><span class="h2">Последние операции</span><button style="font-size:14px;font-weight:800;color:var(--soft)" onclick="go('history')">Все</button></div>
+  ${[{m:'AI',n:'ChatGPT Plus',s:'Онлайн •• 4417 · сегодня',a:'−$20.00',r:'card'},{m:'₽',n:'Пополнение по СБП',s:'Кошелёк · вчера',a:'+5 000 ₽',r:'topup'},{m:'St',n:'Steam',s:'18 ноя',a:'−1 200 ₽',r:'steam'}].map(t=>txRow(t,`go('receipt',{rtype:'${t.r}'})`)).join('')}
+ </div>`;
 };
 
-V.card = () => `
-<div class="row between"><span class="g h1">Мои карты</span><button class="row" style="height:40px;padding:0 14px;border-radius:13px;background:var(--s1);gap:6px;font-size:14px;font-weight:600" onclick="go('issue')">${I.plus.replace('22','18').replace('22','18')} Новая</button></div>
-<div>${card(Math.min(340, innerWidth-32), 'online', `<div class="col" style="position:absolute;left:20px;top:76px;gap:2px"><span style="font-size:12px;opacity:.75">Баланс карты</span><span class="g" style="font-weight:600;font-size:30px">$84.20</span></div>`)}</div>
-<div class="grid4">
-  <button class="act pri" onclick="go('topup')"><i>${I.plus}</i>Пополнить</button>
-  <button class="act" onclick="haptic();set({show:!S.show})"><i>${I.eye.replace(/16/g,'22')}</i>${S.show?'Скрыть':'Реквизиты'}</button>
-  <button class="act" onclick="haptic('medium');set({frozen:!S.frozen})"><i style="${S.frozen?'background:#1B2E40;color:#BFE3FF':''}">${I.snow}</i>${S.frozen?'Разморозить':'Заморозить'}</button>
-  <button class="act" onclick="toast('Поддержка: скоро')"><i>${I.help}</i>Помощь</button>
-</div>
-${S.show ? `<div class="box list">${[['Номер карты','0000 0000 0000 4417'],['Срок действия','11/29'],['CVC','•••']].map(d=>`<div class="li"><div class="col" style="gap:2px"><span class="muted" style="font-size:12px">${d[0]}</span><span class="g" style="font-size:16px;font-weight:600;letter-spacing:1px">${d[1]}</span></div><button style="height:34px;padding:0 12px;border-radius:11px;background:var(--s3);font-size:13px;font-weight:500" onclick="toast('Скопировано')">Копировать</button></div>`).join('')}<div class="muted" style="font-size:12px;padding:12px 0">Никому не сообщайте CVC и коды из бота.</div></div>` : ''}
-<button class="row" style="height:52px;border-radius:16px;background:#F2F3F5;color:#0E0F13;justify-content:center;gap:10px;font-size:15px;font-weight:600" onclick="toast('Привязка к Wallet — демо')">${I.card.replace(/22/g,'20')} Добавить в Apple Wallet</button>
-<div class="col" style="gap:4px"><span class="h2" style="padding-bottom:8px">Операции по карте</span>
-  ${[['AI','ChatGPT Plus','Сегодня, 14:02','−$20.00'],['!','Midjourney','Отклонено: недостаточно средств','$30.00','var(--bad)','var(--mu)'],['+','Пополнение карты','С баланса кошелька · 18 ноя','+$100.00'],['Sp','Spotify','15 ноя','−$11.99']].map(txRow).join('')}</div>`;
-
-V.topup = () => {
-  const c = S.method === 'crypto', vals = c ? [20,50,100,250] : [2000,5000,10000,25000], cur = c ? S.usdt : S.rub;
-  return `${back_('Пополнение кошелька')}
-<div class="grid2">
-  ${[['rub','₽','Рубли','СБП · мгновенно'],['crypto','₮','Крипта','USDT · 3 сети']].map(m=>`<button class="col box" style="align-items:flex-start;gap:10px;padding:14px;border-radius:18px;text-align:left;border:2px solid ${S.method===m[0]?'var(--accent)':'transparent'}" onclick="haptic();set({method:'${m[0]}'})"><span class="g" style="width:36px;height:36px;border-radius:12px;background:var(--s3);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:17px">${m[1]}</span><span class="col" style="gap:2px"><span style="font-size:15px;font-weight:600">${m[2]}</span><span class="muted" style="font-size:12px">${m[3]}</span></span></button>`).join('')}
-</div>
-${c ? `<div class="col" style="gap:10px"><span class="muted" style="font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:.6px">Сеть</span><div class="grid3">${[['TRC-20','Tron'],['TON','The Open Network'],['BEP-20','BNB Chain']].map(n=>`<button class="col" style="align-items:center;gap:2px;padding:10px 6px;border-radius:14px;background:${S.net===n[0]?'var(--accent-bg)':'var(--s1)'};border:1px solid ${S.net===n[0]?'var(--accent)':'var(--line)'}" onclick="haptic();set({net:'${n[0]}'})"><span style="font-size:14px;font-weight:600">${n[0]}</span><span class="muted" style="font-size:11px">${n[1]}</span></button>`).join('')}</div></div>` : ''}
-<div class="box col" style="align-items:center;gap:6px;padding:22px 16px;border-radius:22px"><span class="muted" style="font-size:13px">Сумма пополнения</span><span class="g" style="font-weight:600;font-size:44px;letter-spacing:-.5px">${c ? S.usdt+' USDT' : fmt(S.rub)+' ₽'}</span><span class="muted" style="font-size:13px">${c?'Минимум [сумма] USDT':'От [мин] до [макс] ₽'}</span></div>
-<div class="grid4">${vals.map(v=>`<button class="pill ${v===cur?'on':''}" onclick="haptic();set({${c?'usdt':'rub'}:${v}})">${c ? v+' ₮' : (v/1000)+'K ₽'}</button>`).join('')}</div>
-<div class="box list">${(c ? [['Сеть',S.net],['Комиссия сервиса','[%]'],['Курс','1 USDT = [курс] ₽']] : [['Способ','СБП'],['Комиссия','[%]'],['Зачисление','До 1 минуты']]).map(s=>`<div class="li"><span class="muted">${s[0]}</span><span style="font-weight:600">${s[1]}</span></div>`).join('')}
-  <div class="li"><span style="font-size:15px;font-weight:600">К зачислению</span><span class="g" style="font-size:17px;font-weight:600;color:var(--ok)">${c?'≈ [сумма] ₽':'[сумма] ₽'}</span></div></div>
-<div class="note">${I.info}<span>${c?'Отправляйте только USDT в выбранной сети. Перевод в другой сети или другой монеты может потеряться.':'Переводите со своего счёта. [Уточнить у провайдера: нужно ли совпадение ФИО.]'}</span></div>
-<div class="bottom"><button class="cta" onclick="toast('Платёжный шаг — демо')">${c?'Показать адрес для перевода':'Перейти в банк'}</button></div>`;
+V.card=()=>{
+ const c=CARDS[S.card],fz=S.frozen[S.card];
+ return `<div class="row between"><span class="h1">Мои карты</span><button class="row" style="height:40px;padding:0 14px;border-radius:13px;background:var(--s1);gap:6px;font-size:14px;font-weight:800" onclick="go('store')">${sv(I.plus,16,2.4)}Новая</button></div>
+ <div class="hs">${CARDS.map((x,k)=>`<button class="pill ${k===S.card?'on':''}" onclick="hap();set({card:${k},flipped:false})">${x.n}</button>`).join('')}<button class="pill" style="background:none;border:1.5px dashed #34363F;color:var(--mu)" onclick="go('store',{st:2})">+ Пластик</button></div>
+ <div style="display:flex;justify-content:center"><button aria-label="Перевернуть карту" onclick="hap();set({flipped:!S.flipped})" style="display:block;width:272px;height:430px;perspective:1400px">
+  <div class="flip" style="transform:${S.flipped?'rotateY(180deg)':'none'}">
+   <div class="face cardf" style="border-radius:28px;background:${c.bg};box-shadow:0 30px 60px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.18);text-align:left">
+    <div class="wm" style="left:-46px;bottom:-84px;font-size:380px;color:rgba(255,255,255,.07)">${M[0]}</div>
+    <div class="row" style="position:absolute;left:22px;top:22px;gap:8px"><div class="u" style="width:34px;height:34px;border-radius:10px;background:${c.logoBg};color:${c.logoFg};font-weight:800;font-size:16px;display:flex;align-items:center;justify-content:center">${M}</div><span style="font-weight:800;font-size:15px">${BRAND.name}</span></div>
+    <span style="position:absolute;right:22px;top:32px;font-size:11px;font-weight:800;letter-spacing:1px;opacity:.85">${c.tag}</span>
+    <div class="chipg" style="right:22px;top:96px;width:32px;height:42px"></div>
+    <div class="col" style="position:absolute;left:22px;top:200px;gap:4px"><span style="font-size:13px;opacity:.75">Баланс карты</span><span class="u" style="font-weight:600;font-size:38px;letter-spacing:-1px">${c.bal}</span></div>
+    <span class="mono" style="position:absolute;left:22px;bottom:54px;font-weight:700;font-size:16px;letter-spacing:2px">•••• ${c.last}</span>
+    <span style="position:absolute;left:22px;bottom:26px;font-size:12px;font-weight:700;opacity:.7">Нажми, чтобы увидеть реквизиты</span>
+    ${fz?`<div class="col" style="position:absolute;inset:0;background:rgba(170,205,235,.28);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);align-items:center;justify-content:center;gap:10px">${sv(I.snow,40)}<span class="u" style="font-weight:600;font-size:17px">Заморожена</span></div>`:''}
+   </div>
+   <div class="face" style="border-radius:28px;transform:rotateY(180deg);background:#15161B;border:1px solid var(--line);text-align:left">
+    <div style="position:absolute;left:0;right:0;top:30px;height:46px;background:#000"></div>
+    <div class="col" style="position:absolute;left:22px;right:22px;top:104px;gap:18px">
+     <div class="col" style="gap:4px"><span class="mu" style="font-size:12px">Номер карты</span><span class="mono" style="font-size:18px;font-weight:700;letter-spacing:1px">0000 0000<br>0000 ${c.last}</span></div>
+     <div class="row" style="gap:36px"><div class="col" style="gap:4px"><span class="mu" style="font-size:12px">Срок</span><span class="mono" style="font-size:18px;font-weight:700">11/29</span></div><div class="col" style="gap:4px"><span class="mu" style="font-size:12px">CVC</span><span class="mono" style="font-size:18px;font-weight:700">•••</span></div></div>
+     <div class="col" style="gap:4px"><span class="mu" style="font-size:12px">Держатель</span><span class="mono" style="font-size:16px;font-weight:700">${BRAND.name.toUpperCase()}</span></div>
+    </div>
+    <span onclick="event.stopPropagation();toast('Номер скопирован')" style="position:absolute;left:22px;right:22px;bottom:22px;height:44px;border-radius:13px;background:var(--s3);font-size:14px;font-weight:800;display:flex;align-items:center;justify-content:center">Скопировать номер</span>
+   </div>
+  </div></button></div>
+ <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px">
+  ${[['go(\'topup\')',I.plus,'Пополнить',true],['hap();set({flipped:!S.flipped})',I.eye,S.flipped?'Скрыть':'Реквизиты'],[`hap('medium');S.frozen[S.card]=!S.frozen[S.card];set({flipped:false})`,I.snow,fz?'Разморозить':'Заморозить',false,fz],['hap();set({limits:true})',I.sliders,'Лимиты']].map(([on,ic,l,pri,act])=>`<button class="col" style="align-items:center;gap:8px;font-size:12px;font-weight:700" onclick="${on}"><span style="width:54px;height:54px;border-radius:18px;display:flex;align-items:center;justify-content:center;${pri?'background:var(--accent);color:#fff':act?'background:#1B2E40;color:#BFE3FF':'background:var(--s2)'}">${sv(ic)}</span>${l}</button>`).join('')}
+ </div>
+ ${S.card===1?`<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><button class="btn2" style="background:var(--tx);color:var(--bg)" onclick="toast('Привязка к Apple Wallet — демо')">В Apple Wallet</button><button class="btn2" style="background:var(--tx);color:var(--bg)" onclick="toast('Привязка к Google Pay — демо')">В Google Pay</button></div>`:''}
+ <div class="col" style="gap:2px"><div class="row between" style="padding-bottom:6px"><span class="h2">Операции по карте</span><button style="font-size:14px;font-weight:800;color:var(--soft)" onclick="go('history')">Все</button></div>${c.tx.map(t=>txRow(t,t.bad?'':`go('receipt',{rtype:'card'})`)).join('')}</div>
+ ${S.limits?`<div class="sheetWrap"><div class="sheetBg" onclick="set({limits:false})"></div><div class="sheet"><span class="grab"></span><span class="u" style="font-weight:600;font-size:18px">Лимиты карты</span>
+  <div class="col" style="gap:8px;padding:14px;border-radius:16px;background:#1C1D23"><div class="row between" style="font-size:13px"><span class="mu">Потрачено в ноябре</span><span style="font-weight:800">${c.spent} из [лимит]</span></div><div style="height:8px;border-radius:4px;background:var(--line);overflow:hidden"><div style="width:${c.pct}%;height:100%;border-radius:4px;background:var(--accent)"></div></div></div>
+  <div class="col" style="border-radius:16px;background:#1C1D23;padding:2px 14px"><div class="li" style="border-color:var(--line)"><span class="mu">За одну покупку</span><b>[сумма]</b></div><div class="li" style="border-color:var(--line)"><span class="mu">Пополнение карты в месяц</span><b>[сумма]</b></div><div class="li"><span class="mu">С подпиской Plus</span><b style="color:var(--soft)">выше в [N] раз</b></div></div>
+  <button class="cta" style="height:50px;font-size:15px" onclick="go('profile')">Поднять лимиты с Plus</button></div></div>`:''}`;
 };
 
-const REG = {
-  'Популярное':[['TR','Турция','1–20 ГБ · 7–30 дней'],['TH','Таиланд','Безлимит · 1–30 дней'],['AE','ОАЭ','1–10 ГБ · 7–30 дней'],['VN','Вьетнам','Безлимит · 1–30 дней'],['GE','Грузия','1–20 ГБ · 7–30 дней'],['EU','Европа','39 стран · 5–50 ГБ']],
-  'Азия':[['TH','Таиланд','Безлимит · 1–30 дней'],['VN','Вьетнам','Безлимит · 1–30 дней'],['ID','Индонезия','1–20 ГБ · 7–30 дней'],['CN','Китай','1–10 ГБ · 7–30 дней']],
-  'Европа':[['EU','Европа','39 стран · 5–50 ГБ'],['TR','Турция','1–20 ГБ · 7–30 дней'],['GE','Грузия','1–20 ГБ · 7–30 дней']],
-  'Весь мир':[['GL','Глобальный','120+ стран · 1–20 ГБ']]
+V.store=()=>{
+ const c=STORE[S.st];
+ return `${backBar('Выберите карту')}
+ <div aria-hidden="true" style="position:absolute;left:50%;top:60px;width:380px;height:300px;margin-left:-190px;border-radius:190px;background:${c.glow};filter:blur(70px);transition:background .6s;pointer-events:none"></div>
+ <div id="stage" style="position:relative;height:250px;display:flex;align-items:center;justify-content:center;perspective:1100px;touch-action:pan-y;user-select:none;-webkit-user-select:none">
+  <div id="scard" class="cardf" style="width:300px;height:190px;border-radius:20px;background:${c.bg};color:${c.fg};box-shadow:0 26px 50px rgba(0,0,0,.55),inset 0 1px 0 rgba(255,255,255,.18);transform:rotateY(${S.spinShown}deg)">
+   <div class="wm" style="right:-24px;bottom:-64px;font-size:240px;color:${c.wm}">${M[0]}</div>
+   <div style="position:absolute;inset:0;background:linear-gradient(115deg,rgba(255,255,255,0) 30%,rgba(255,255,255,${c.sheen}) 48%,rgba(255,255,255,0) 62%)"></div>
+   <div class="row" style="position:absolute;left:18px;top:18px;gap:8px"><div class="u" style="width:28px;height:28px;border-radius:8px;background:${c.logoBg};color:${c.logoFg};font-weight:800;font-size:13px;display:flex;align-items:center;justify-content:center">${M}</div><span style="font-weight:800;font-size:14px">${BRAND.name}</span></div>
+   <span style="position:absolute;right:18px;top:22px;font-size:11px;font-weight:800;letter-spacing:1px;opacity:.85">${c.tag}</span>
+   <div class="chipg" style="left:18px;top:78px;width:38px;height:28px"></div>
+   ${c.nfc?`<span style="position:absolute;left:66px;top:81px;opacity:.8">${sv(I.nfc,22,2)}</span>`:''}
+   <span class="mono" style="position:absolute;left:18px;bottom:20px;font-size:14px;font-weight:700;letter-spacing:2px">•••• •••• •••• ••••</span>
+   <span style="position:absolute;right:18px;bottom:18px;font-size:13px;font-weight:800">USD</span>
+  </div></div>
+ <div class="row between" style="position:relative;margin-top:-10px">
+  <button aria-label="Предыдущая карта" onclick="spin(-1)" style="width:40px;height:40px;border-radius:20px;background:rgba(255,255,255,.07);display:flex;align-items:center;justify-content:center">${sv(I.back,18,2)}</button>
+  <div class="row" style="gap:6px;padding:4px;border-radius:16px;background:rgba(255,255,255,.06)">${STORE.map((x,k)=>`<button onclick="spinTo(${k})" style="height:32px;padding:0 12px;border-radius:12px;font-size:13px;font-weight:800;${k===S.st?'background:var(--tx);color:var(--bg)':'color:var(--mu)'}">${x.n}</button>`).join('')}</div>
+  <button aria-label="Следующая карта" onclick="spin(1)" style="width:40px;height:40px;border-radius:20px;background:rgba(255,255,255,.07);display:flex;align-items:center;justify-content:center">${sv(I.right,18,2)}</button>
+ </div>
+ <span style="font-size:12px;color:#8E909A;text-align:center;margin-top:-6px">Свайпни карту — она повернётся</span>
+ <div class="col" style="gap:14px;animation:in .45s ease">
+  <div class="row between" style="align-items:flex-end;gap:12px"><div class="col" style="gap:4px"><span class="u" style="font-weight:600;font-size:22px">${c.title}</span><span class="mu" style="font-size:14px">${c.sub}</span></div><div class="col" style="align-items:flex-end;gap:2px;flex-shrink:0"><span class="mu" style="font-size:12px">Выпуск</span><span class="u" style="font-weight:600;font-size:22px;color:var(--soft)">${c.price}</span></div></div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">${c.stats.map(s=>`<div class="col" style="padding:12px 14px;border-radius:16px;background:#15161B;gap:3px"><span class="mu" style="font-size:12px">${s[0]}</span><span style="font-size:16px;font-weight:800">${s[1]}</span></div>`).join('')}</div>
+  <div class="col" style="border-radius:18px;background:#15161B;padding:4px 14px">${c.feats.map(f=>`<div class="li"><span class="row" style="gap:12px"><span style="width:24px;height:24px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;${f[1]?'background:#1B3A2B;color:var(--ok)':'background:var(--s3);color:#6B6E78'}">${f[1]?'✓':'–'}</span><span style="font-size:14px;font-weight:600;color:${f[1]?'var(--tx)':'#7C7F89'}">${f[0]}</span></span></div>`).join('')}</div>
+ </div>
+ <div class="bottom"><button class="cta" onclick="ok();go('receipt',{rtype:'card'})">${c.cta}</button></div>`;
 };
-V.services = () => {
-  const st = S.svc === 'steam';
-  return `<span class="g h1">Сервисы</span>
-<div class="seg"><button class="${st?'on':''}" onclick="haptic();set({svc:'steam'})">Steam</button><button class="${st?'':'on'}" onclick="haptic();set({svc:'esim'})">eSIM</button></div>
-${st ? `
-<div class="row" style="gap:14px;padding:16px;border-radius:20px;background:#171B24;border:1px solid #263044"><span style="width:48px;height:48px;border-radius:15px;background:#1F2A3D;display:flex;align-items:center;justify-content:center;color:#C7D5E0;flex-shrink:0">${I.game}</span><div class="col" style="gap:2px"><span style="font-size:16px;font-weight:600">Пополнение Steam</span><span class="muted" style="font-size:13px">Деньги придут на аккаунт за пару минут</span></div></div>
-<div class="col" style="gap:8px"><label for="sl" class="muted" style="font-size:13px;font-weight:600">Логин Steam</label><input id="sl" class="field" type="text" placeholder="Например, gaben" autocomplete="off"><span class="muted" style="font-size:12px">Логин, а не никнейм. Его видно в настройках аккаунта.</span></div>
-<div class="col" style="gap:8px"><span class="muted" style="font-size:13px;font-weight:600">Сумма</span><div class="grid4">${[500,1000,2500,5000].map(v=>`<button class="pill ${v===S.steam?'on':''}" onclick="haptic();set({steam:${v}})">${v>=1000?(v/1000)+'K':v} ₽</button>`).join('')}</div></div>
-<div class="box list"><div class="li"><span class="muted">Придёт на Steam</span><span style="font-weight:600">${fmt(S.steam)} ₽</span></div><div class="li"><span class="muted">Комиссия</span><span style="font-weight:600">[%]</span></div><div class="li"><span style="font-size:15px;font-weight:600">Спишем с баланса</span><span class="g" style="font-size:17px;font-weight:600">[сумма] ₽</span></div></div>
-<button class="cta" onclick="toast('Пополнение Steam — демо')">Пополнить Steam</button>
-<div class="box row between" style="padding:14px 16px;border-radius:18px"><span style="font-size:14px;font-weight:500">Ключи игр и подарочные карты</span><span class="muted" style="height:26px;padding:0 10px;border-radius:13px;background:var(--s3);font-size:12px;font-weight:600;display:inline-flex;align-items:center">Скоро</span></div>
-` : `
-<div style="position:relative"><span style="position:absolute;left:16px;top:17px">${I.search}</span><input class="field" type="search" placeholder="Куда едете?" aria-label="Поиск страны" style="padding-left:44px"></div>
-<div class="row" style="gap:8px;flex-wrap:wrap">${Object.keys(REG).map(r=>`<button class="chip" style="height:36px;background:${r===S.region?'var(--accent-bg)':'var(--s1)'};border-color:${r===S.region?'var(--accent)':'var(--line)'}" onclick="haptic();set({region:'${r}'})">${r}</button>`).join('')}</div>
-<div class="box list">${REG[S.region].map(c=>`<button class="li" style="width:100%;gap:12px;justify-content:flex-start;text-align:left" onclick="toast('${c[1]}: тарифы — демо')"><span style="width:38px;height:38px;border-radius:12px;background:var(--s3);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#C9CBD3;flex-shrink:0">${c[0]}</span><span class="col" style="gap:2px;flex:1"><span style="font-size:15px;font-weight:500">${c[1]}</span><span class="muted" style="font-size:12px">${c[2]}</span></span><span style="font-weight:600">от [цена]</span>${I.right}</button>`).join('')}</div>
-<div class="note">${I.info}<span>Проверьте, что телефон поддерживает eSIM. Установка по QR-коду или одной кнопкой на iPhone.</span></div>`}`;
+function spin(d){hap();S.st=(S.st+d+3)%3;S.spin-=d*360;render();requestAnimationFrame(()=>requestAnimationFrame(()=>{const cd=document.getElementById('scard');if(cd){cd.style.transition='transform .9s cubic-bezier(.2,.8,.2,1)';cd.style.transform=`rotateY(${S.spin}deg)`}S.spinShown=S.spin}))}
+function spinTo(k){if(k===S.st)return;spin(((k-S.st+3)%3)===1?1:-1)}
+
+function qr(seed){const N=21,out=[];let x=seed*9301+49297;const rnd=()=>{x=(x*9301+49297)%233280;return x/233280};const f=(r,c)=>{const g=(r0,c0)=>r>=r0&&r<r0+7&&c>=c0&&c<c0+7?(r===r0||r===r0+6||c===c0||c===c0+6||(r>=r0+2&&r<=r0+4&&c>=c0+2&&c<=c0+4)):null;return g(0,0)??g(0,14)??g(14,0)};for(let r=0;r<N;r++)for(let c=0;c<N;c++){const v=f(r,c);const sep=(r===7&&(c<8||c>12))||(c===7&&(r<8||r>12))||(r===13&&c<8)||(c===13&&r<8);out.push((v!==null?v:(!sep&&rnd()>.52))?'#0E0F13':'#FFFFFF')}return out}
+const TOP=()=>S.m==='rub'?{key:'rub',step:500,min:1000,max:250000,presets:[2000,5000,10000,25000]}:{key:'usdt',step:5,min:10,max:5000,presets:[20,50,100,250]};
+function setAmt(v){const c=TOP();S[c.key]=Math.max(c.min,Math.min(c.max,Math.round(v/c.step)*c.step));updRuler()}
+function amtLabel(){return S.m==='rub'?sp(S.rub)+' ₽':sp(S.usdt)+' USDT'}
+function updRuler(){const c=TOP(),a=S[c.key];const off=Math.round(-(a/c.step)*12)%60;const el=document.getElementById('ticks');if(!el)return;el.style.backgroundPosition=`${off}px 0, ${off}px 8px`;document.getElementById('amt').textContent=amtLabel();document.getElementById('lo').textContent=sp(Math.max(c.min,a-c.step*12));document.getElementById('hi').textContent=sp(Math.min(c.max,a+c.step*12));const ctab=document.getElementById('ctaAmt');if(ctab)ctab.textContent=amtLabel();document.querySelectorAll('[data-preset]').forEach(b=>b.classList.toggle('on',+b.dataset.preset===a))}
+V.topup=()=>{
+ const rub=S.m==='rub',c=TOP(),net=NETS[S.net];
+ return `${backBar('Пополнение')}
+ <div class="seg"><button class="${rub?'on':''}" onclick="hap();set({m:'rub'})">Рубли · СБП</button><button class="${rub?'':'on'}" onclick="hap();set({m:'usdt'})">USDT</button></div>
+ ${rub?'':`<div class="col" style="gap:8px"><span class="mu" style="font-size:13px;font-weight:800">Сеть перевода</span><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">${NETS.map((n,k)=>`<button class="row" style="gap:10px;padding:10px 12px;border-radius:14px;text-align:left;border:1.5px solid ${k===S.net?A:'transparent'};background:${k===S.net?A+'1F':'var(--s1)'}" onclick="hap();set({net:${k}})"><span style="width:32px;height:32px;border-radius:10px;background:${n.ibg};color:${n.ifg};display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;flex-shrink:0">${n.m}</span><span class="col" style="gap:1px"><span style="font-size:14px;font-weight:800">${n.name}</span><span class="mu" style="font-size:11px">${n.chain}</span></span></button>`).join('')}</div></div>`}
+ <div class="col" style="align-items:center;gap:6px;padding-top:6px"><span class="mu" style="font-size:13px">Сколько пополняем</span><span id="amt" class="u" style="font-weight:600;font-size:48px;letter-spacing:-1.5px;line-height:1">${amtLabel()}</span><span class="mu" style="font-size:13px">${rub?'Со своего счёта через СБП':'Сеть '+net.name+' · '+net.chain}</span></div>
+ <div class="row" style="gap:10px">
+  <button aria-label="Меньше" onclick="hap();setAmt(S[TOP().key]-TOP().step)" style="width:44px;height:44px;border-radius:22px;background:var(--s1);flex-shrink:0;display:flex;align-items:center;justify-content:center">${sv(I.minus,18,2.4)}</button>
+  <div id="ruler" role="slider" aria-label="Сумма" tabindex="0" style="position:relative;flex:1;height:82px;border-radius:18px;background:#15161B;overflow:hidden;touch-action:none;cursor:ew-resize;user-select:none">
+   <div id="ticks" style="position:absolute;left:0;right:0;top:14px;height:38px;background-image:repeating-linear-gradient(90deg,#4A4D57 0 2px,transparent 2px 60px),repeating-linear-gradient(90deg,#2E3038 0 2px,transparent 2px 12px);background-size:60px 38px,12px 22px;background-repeat:repeat-x,repeat-x"></div>
+   <div class="row between" style="position:absolute;left:0;right:0;bottom:9px;padding:0 12px;font-size:11px;font-weight:700;color:#6B6E78"><span id="lo"></span><span id="hi"></span></div>
+   <div style="position:absolute;left:50%;top:7px;width:4px;height:52px;margin-left:-2px;border-radius:2px;background:var(--accent);box-shadow:0 0 14px var(--accent)"></div>
+   <div style="position:absolute;inset:0;background:linear-gradient(90deg,#15161B 0%,rgba(21,22,27,0) 22%,rgba(21,22,27,0) 78%,#15161B 100%);pointer-events:none"></div>
+  </div>
+  <button aria-label="Больше" onclick="hap();setAmt(S[TOP().key]+TOP().step)" style="width:44px;height:44px;border-radius:22px;background:var(--s1);flex-shrink:0;display:flex;align-items:center;justify-content:center">${sv(I.plus,18,2.4)}</button>
+ </div>
+ <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px">${c.presets.map(v=>`<button data-preset="${v}" class="pill" style="height:40px;padding:0;border-radius:13px" onclick="hap();setAmt(${v})">${rub?(v/1000)+'K ₽':v+' ₮'}</button>`).join('')}</div>
+ <div class="box list">${(rub?[['Способ','СБП, со своего счёта'],['Комиссия','[%]']]:[['Курс','1 USDT = [курс] ₽'],['Комиссия','[%]']]).map(r=>`<div class="li"><span class="mu">${r[0]}</span><b>${r[1]}</b></div>`).join('')}<div class="li"><b style="font-size:15px">К зачислению</b><span class="u" style="font-weight:600;color:var(--ok)">[сумма]</span></div></div>
+ <div class="bottom">${rub?`<button class="cta" onclick="ok();go('receipt',{rtype:'topup'})">Пополнить <span id="ctaAmt" style="margin-left:6px">${amtLabel()}</span></button>`:`<button class="cta" onclick="hap();set({addr:true})">Получить адрес для перевода</button>`}</div>
+ ${S.addr?`<div class="sheetWrap"><div class="sheetBg" onclick="set({addr:false})"></div><div class="sheet"><span class="grab"></span>
+  <div class="row between"><span class="u" style="font-weight:600;font-size:17px">Переведите ${amtLabel()}</span><span class="chip" style="height:26px;background:var(--abg);color:var(--soft)">${net.name}</span></div>
+  <div class="row" style="gap:14px"><div role="img" aria-label="QR-код адреса" style="width:126px;height:126px;flex-shrink:0;border-radius:14px;background:#fff;padding:9px;display:grid;grid-template-columns:repeat(21,1fr)">${qr(S.net+3).map(c=>`<span style="background:${c}"></span>`).join('')}</div>
+   <div class="col" style="gap:8px;min-width:0"><span class="mu" style="font-size:12px">Адрес кошелька</span><span class="mono" style="font-size:13px;font-weight:700;line-height:1.4;word-break:break-all">${net.addr}</span><button style="align-self:flex-start;height:34px;padding:0 12px;border-radius:11px;background:var(--s3);font-size:13px;font-weight:800" onclick="toast('Адрес скопирован')">Скопировать адрес</button></div></div>
+  <div class="note warn">${sv(I.alert,18,2)}<span>Только USDT и только в сети ${net.name}. Другая монета или сеть — деньги могут потеряться. Минимум [сумма] USDT.</span></div>
+  <div class="row" style="gap:10px;font-size:13px;color:#C9CBD3"><span class="pulse" style="width:10px;height:10px;border-radius:5px;background:var(--ok)"></span>Ждём перевод · обычно ${net.eta}</div>
+  <button class="cta" style="height:52px;font-size:15px" onclick="ok();go('receipt',{rtype:'topup'})">Я перевёл</button></div></div>`:''}`;
 };
 
-V.profile = () => `
-<div class="row" style="gap:14px">
-  ${user.photo_url ? `<img src="${user.photo_url}" alt="" style="width:56px;height:56px;border-radius:18px;object-fit:cover">` : `<div class="g" style="width:56px;height:56px;border-radius:18px;background:var(--s3);display:flex;align-items:center;justify-content:center;font-weight:600;font-size:22px">${(user.first_name||'?')[0]}</div>`}
-  <div class="col" style="gap:4px;flex:1"><span style="font-weight:600;font-size:18px">${user.first_name || 'Гость'}</span><span class="muted" style="font-size:13px">${user.username?'@'+user.username+' · ':''}ID ${user.id}</span></div>
-  <span style="height:28px;padding:0 12px;border-radius:14px;background:var(--s3);font-size:12px;font-weight:600;color:#C9CBD3;display:inline-flex;align-items:center">Базовый</span>
-</div>
-<div class="col" style="position:relative;overflow:hidden;border-radius:24px;background:var(--plus-bg);padding:20px;gap:14px;color:#fff">
-  <div class="g" aria-hidden="true" style="position:absolute;right:-10px;top:-40px;font-weight:700;font-size:200px;line-height:1;color:rgba(255,255,255,.08)">+</div>
-  <div class="row" style="gap:8px;position:relative"><span class="g" style="font-weight:700;font-size:24px">${BRAND.name.split(' ')[0]} Plus</span><span style="height:24px;padding:0 10px;border-radius:12px;background:rgba(255,255,255,.18);font-size:12px;font-weight:600;display:inline-flex;align-items:center">[цена] / мес</span></div>
-  <div class="col" style="gap:10px;position:relative">${['Ниже комиссия за пополнение','Лимиты выше','Кэшбэк [%] на покупки','Приоритетная поддержка'].map(p=>`<div class="row" style="gap:10px;font-size:14px">${I.check}${p}</div>`).join('')}</div>
-  <button style="height:48px;border-radius:14px;background:#fff;color:#0E0F13;font-size:15px;font-weight:600;position:relative" onclick="toast('Подписка Plus — демо')">Подключить Plus</button>
-</div>
-<div class="box col" style="gap:14px;padding:18px;border-radius:22px">
-  <div class="col" style="gap:4px"><span class="h2">Приглашай друзей</span><span class="muted" style="font-size:14px">[сумма] тебе и [сумма] другу после его первой карты</span></div>
-  <div class="row" style="gap:8px;padding:6px 6px 6px 14px;border-radius:14px;background:var(--bg);border:1px solid var(--line)"><span style="flex:1;font-size:13px;color:#C9CBD3;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">t.me/aboba_cards_bot?start=ref_${user.id}</span><button style="height:36px;padding:0 14px;border-radius:10px;background:var(--accent);color:#fff;font-size:13px;font-weight:600" onclick="copyRef()">Копировать</button></div>
-  <div class="grid2"><div class="col" style="gap:2px;padding:12px;border-radius:14px;background:var(--s2)"><span class="muted" style="font-size:12px">Приглашено</span><span class="g" style="font-size:20px;font-weight:600">0</span></div><div class="col" style="gap:2px;padding:12px;border-radius:14px;background:var(--s2)"><span class="muted" style="font-size:12px">Заработано</span><span class="g" style="font-size:20px;font-weight:600">$0.00</span></div></div>
-</div>
-<div class="box" style="padding:0 16px">${[['Язык','Русский'],['ПИН-код на вход','Выключен'],['Уведомления','Включены'],['Поддержка','24/7'],['Тарифы и лимиты',''],['Документы','']].map(s=>`<button class="li" style="width:100%;min-height:52px;gap:12px" onclick="toast('${s[0]} — демо')"><span style="flex:1;text-align:left;font-size:15px">${s[0]}</span><span class="muted">${s[1]}</span>${I.right}</button>`).join('')}</div>
-<span style="font-size:12px;color:#8A8D98;text-align:center">${BRAND.name} · драфт v1 · данные демонстрационные</span>`;
+V.catalog=()=>{
+ const items=S.cat==='Все'?SERVICES:SERVICES.filter(s=>s[3]===S.cat);
+ const open=s=>s[5]==='steam'?"go('steam')":s[5]==='esim'?"go('esim')":`toast('${s[1]}: скоро')`;
+ return `<span class="h1" style="font-size:24px">Сервисы</span>
+ <div style="position:relative"><span style="position:absolute;left:16px;top:15px;color:var(--mu)">${sv(I.search,18,2)}</span><input type="search" aria-label="Поиск сервиса" placeholder="Steam, Spotify, eSIM…" style="width:100%;height:48px;padding:0 16px 0 44px;border-radius:15px;border:1px solid var(--line);background:var(--s1);color:var(--tx);font-size:15px;outline:none" oninput="filterSvc(this.value)"></div>
+ <div class="hs">${['Все','Игры','Подписки','AI','Приложения','Поездки','Подарки'].map(n=>`<button class="pill ${n===S.cat?'on':''}" onclick="hap();set({cat:'${n}'})">${n}</button>`).join('')}</div>
+ ${S.cat==='Все'?`<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+  <button onclick="go('steam')" style="height:128px;border-radius:20px;background:#172435;padding:14px;display:flex;flex-direction:column;justify-content:space-between;position:relative;overflow:hidden;text-align:left"><span style="font-size:12px;font-weight:800;color:#9CC2FF;letter-spacing:.5px">ПОПУЛЯРНОЕ</span><span class="col" style="gap:2px"><span class="u" style="font-weight:600;font-size:18px">Steam</span><span style="font-size:12px;color:#B6C3D6">Пополнение по логину</span></span><span class="wm" style="right:-12px;top:-14px;font-size:84px;color:rgba(156,194,255,.12)">St</span></button>
+  <button onclick="go('esim')" style="height:128px;border-radius:20px;background:#13291F;padding:14px;display:flex;flex-direction:column;justify-content:space-between;position:relative;overflow:hidden;text-align:left"><span style="font-size:12px;font-weight:800;color:#7BE3B5;letter-spacing:.5px">В ПОЕЗДКУ</span><span class="col" style="gap:2px"><span class="u" style="font-weight:600;font-size:18px">eSIM</span><span style="font-size:12px;color:#B3D2C3">150+ стран</span></span><span class="wm" style="right:-10px;top:-14px;font-size:84px;color:rgba(123,227,181,.12)">eS</span></button></div>`:''}
+ <span class="h2">${S.cat==='Все'?'Все сервисы':S.cat}</span>
+ <div id="svcGrid" style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px">${items.map(s=>`<button data-name="${s[1].toLowerCase()}" class="col" style="gap:10px;padding:12px;border-radius:18px;background:var(--s1);text-align:left" onclick="${open(s)}"><span class="u" style="width:44px;height:44px;border-radius:14px;background:${CC[s[4]][0]};color:${CC[s[4]][1]};display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px">${s[0]}</span><span class="col" style="gap:2px;min-width:0;width:100%"><span style="font-size:13px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${s[1]}</span><span class="mu" style="font-size:11px">${s[2]}</span></span></button>`).join('')}</div>
+ <div class="row" style="gap:12px;padding:14px;border-radius:18px;border:1.5px dashed #34363F"><span style="font-size:14px;color:#C9CBD3;flex:1">Не нашли нужный сервис?</span><button style="font-size:14px;font-weight:800;color:var(--soft)" onclick="toast('Спасибо, передадим команде')">Предложить</button></div>`;
+};
+function filterSvc(q){q=q.trim().toLowerCase();document.querySelectorAll('#svcGrid [data-name]').forEach(b=>b.style.display=!q||b.dataset.name.includes(q)?'':'none')}
 
-function copyRef(){ const t='https://t.me/aboba_cards_bot?start=ref_'+user.id; try{navigator.clipboard.writeText(t)}catch(e){} toast('Ссылка скопирована'); }
+V.steam=()=>{
+ const src=[['₽','Кошелёк, рубли','Баланс 12 480 ₽',A],[M,'Онлайн •• 4417','Баланс $84.20',CARD]];
+ return `${backBar('Steam')}
+ <div style="position:relative;overflow:hidden;height:118px;border-radius:22px;background:#172435;padding:16px;display:flex;flex-direction:column;justify-content:flex-end;gap:2px"><span class="wm" style="right:-10px;top:-22px;font-size:110px;color:rgba(156,194,255,.12)">St</span><span class="u" style="font-weight:600;font-size:20px">Пополнение Steam</span><span style="font-size:13px;color:#B6C3D6">Деньги на аккаунте через 1–5 минут</span></div>
+ <div class="col" style="gap:8px"><label for="login" class="mu" style="font-size:13px;font-weight:800">1 · Логин Steam</label>
+  <div class="row" style="gap:8px"><input id="login" type="text" autocomplete="off" placeholder="Например, gaben" style="flex:1;min-width:0;height:52px;padding:0 16px;border-radius:15px;border:1px solid ${S.steamChecked?'#1E4A34':'var(--line)'};background:var(--s1);color:var(--tx);font-size:15px;outline:none"><button class="btn2" style="height:52px;padding:0 16px" onclick="checkLogin()">Проверить</button></div>
+  ${S.steamChecked?`<div class="row" style="gap:10px;padding:10px 12px;border-radius:14px;background:#12251C;border:1px solid #1E4A34"><span style="width:24px;height:24px;border-radius:12px;background:#1B3A2B;color:var(--ok);display:flex;align-items:center;justify-content:center">${sv(I.check,14,3)}</span><span style="font-size:13px;color:#CDE9DA">Аккаунт найден · регион [регион]</span></div>`:`<span style="font-size:12px;color:#8E909A">Именно логин, а не ник. Его видно в настройках аккаунта Steam.</span>`}</div>
+ <div class="col" style="gap:8px"><span class="mu" style="font-size:13px;font-weight:800">2 · Сумма</span><div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px">${[500,1000,2500,5000].map(v=>`<button class="pill ${v===S.steamAmt?'on':''}" style="height:44px;padding:0;border-radius:14px;${v===S.steamAmt?'background:var(--accent);color:#fff':''}" onclick="hap();set({steamAmt:${v}})">${v>=1000?(v/1000)+'K':v} ₽</button>`).join('')}</div></div>
+ <div class="col" style="gap:8px"><span class="mu" style="font-size:13px;font-weight:800">3 · Откуда списать</span>${src.map((s,k)=>`<button class="row" style="gap:12px;padding:12px 14px;border-radius:16px;background:var(--s1);border:2px solid ${k===S.steamSrc?A:'transparent'};text-align:left" onclick="hap();set({steamSrc:${k}})"><span class="u" style="width:36px;height:36px;border-radius:12px;background:${s[3]};color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px">${s[0]}</span><span class="col" style="gap:2px;flex:1"><span style="font-size:14px;font-weight:800">${s[1]}</span><span class="mu" style="font-size:12px">${s[2]}</span></span><span style="width:20px;height:20px;border-radius:10px;border:2px solid ${k===S.steamSrc?A:'#4A4D57'};background:${k===S.steamSrc?A:'transparent'}"></span></button>`).join('')}</div>
+ <div class="box list"><div class="li"><span class="mu">Придёт на Steam</span><b>${sp(S.steamAmt)} ₽</b></div><div class="li"><span class="mu">Комиссия</span><b>[%]</b></div><div class="li"><b style="font-size:15px">Спишем</b><span class="u" style="font-weight:600">[сумма]</span></div></div>
+ <div class="bottom">${S.steamChecked?`<button class="cta" onclick="ok();go('receipt',{rtype:'steam'})">Оплатить ${sp(S.steamAmt)} ₽</button>`:`<button class="cta off" onclick="toast('Сначала проверьте логин')">Сначала проверьте логин</button>`}</div>`;
+};
+function checkLogin(){const v=(document.getElementById('login')||{}).value||'';if(!v.trim()){toast('Введите логин');return}ok();set({steamChecked:true});const i=document.getElementById('login');if(i)i.value=v}
 
-// ---------- рендер ----------
+V.esim=()=>{
+ const sc=SCOPES[S.scope],di=Math.min(S.dest,sc.list.length-1),d=sc.list[di];
+ const gb=S.etype==='gb';
+ const PL=gb?[['1 ГБ','7 дней','[цена за ГБ]'],['5 ГБ','15 дней','[цена за ГБ]',1],['10 ГБ','30 дней','[цена за ГБ]'],['20 ГБ','30 дней','[цена за ГБ]']]:[['1 день','без лимита','[цена в день]'],['7 дней','без лимита','[цена в день]',1],['15 дней','без лимита','[цена в день]'],['30 дней','без лимита','[цена в день]']];
+ const pi=Math.min(S.plan,3);
+ const buy=S.ev==='buy';
+ return `${backBar('eSIM для поездок')}
+ <div class="seg"><button class="${buy?'on':''}" onclick="hap();set({ev:'buy'})">Купить</button><button class="${buy?'':'on'}" onclick="hap();set({ev:'mine'})">Мои eSIM · 2</button></div>
+ ${buy?`
+ <div class="row" style="gap:18px">${SCOPES.map((x,k)=>`<button onclick="hap();set({scope:${k},dest:0})" style="padding-bottom:6px;border-bottom:2px solid ${k===S.scope?A:'transparent'};font-size:14px;font-weight:800;color:${k===S.scope?'var(--tx)':'#8E909A'}">${x.n}</button>`).join('')}</div>
+ <div class="hs">${sc.list.map((x,k)=>`<button class="pill ${k===di?'on':''}" style="height:40px;padding:0 14px 0 6px;display:flex;align-items:center;gap:8px" onclick="hap();set({dest:${k}})"><span style="width:28px;height:28px;border-radius:14px;background:${k===di?'#D9DBE0':'var(--s3)'};display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800">${x[0]}</span>${x[1]}</button>`).join('')}</div>
+ <div class="col" style="position:relative;overflow:hidden;border-radius:22px;background:#13291F;padding:16px;gap:4px"><span class="wm" style="right:-6px;top:-26px;font-size:116px;color:rgba(123,227,181,.13)">${d[0]}</span><span style="font-size:12px;font-weight:800;color:#7BE3B5;letter-spacing:1px">${sc.label}</span><span class="u" style="font-weight:600;font-size:22px">${d[1]}</span><span style="font-size:13px;color:#B3D2C3">${d[2]}</span>
+  <div class="row" style="flex-wrap:wrap;gap:6px;margin-top:8px">${['Срок пойдёт с подключения','Можно докупить','Только интернет'].map(t=>`<span class="chip" style="background:rgba(123,227,181,.14);color:#CDEFE0">${t}</span>`).join('')}</div></div>
+ <div class="seg" style="border-radius:14px"><button class="${gb?'on':''}" style="height:36px;font-size:13px" onclick="hap();set({etype:'gb'})">Гигабайты</button><button class="${gb?'':'on'}" style="height:36px;font-size:13px" onclick="hap();set({etype:'unl'})">Безлимит</button></div>
+ <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">${PL.map((p,k)=>`<button class="col" style="position:relative;align-items:flex-start;gap:4px;padding:14px;border-radius:18px;background:var(--s1);border:2px solid ${k===pi?A:'transparent'};text-align:left" onclick="hap();set({plan:${k}})"><span class="u" style="font-weight:600;font-size:19px">${p[0]}</span><span class="mu" style="font-size:13px">${p[1]}</span><span style="margin-top:4px;font-size:15px;font-weight:800;color:${k===pi?SOFT:'var(--tx)'}">[цена]</span><span style="font-size:11px;color:#8E909A">${p[2]}</span>${p[3]?`<span class="chip" style="position:absolute;right:10px;top:10px;height:22px;background:var(--abg);color:var(--soft)">Выгодно</span>`:''}</button>`).join('')}</div>
+ ${gb?'':`<div class="note">${sv(I.info,18)}<span>Безлимит со справедливым использованием: после [N] ГБ за сутки скорость снижается, через 24 часа снова полная.</span></div>`}
+ <div class="box" style="padding:2px 16px"><button class="row between" style="width:100%;min-height:50px;gap:12px;font-size:14px;font-weight:800;text-align:left" onclick="set({compat:!S.compat})">Мой телефон поддерживает eSIM?<span style="color:var(--mu);transform:${S.compat?'rotate(180deg)':'none'}">${sv(I.down,18,2)}</span></button>${S.compat?`<p style="margin:0 0 14px;font-size:13px;line-height:1.5;color:var(--mu)">Наберите *#06#. Если на экране есть строка EID — телефон поддерживает eSIM. Ещё он должен быть без привязки к оператору.</p>`:''}</div>
+ <div class="bottom"><button class="cta" onclick="ok();go('receipt',{rtype:'esim'})">Купить · ${gb?PL[pi][0]:'Безлимит '+PL[pi][0]} · [цена]</button></div>`:`
+ <div class="box col" style="padding:16px;gap:14px;border-radius:22px"><div class="row" style="gap:12px"><span style="width:42px;height:42px;border-radius:14px;background:#13291F;color:#7BE3B5;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800">TR</span><span class="col" style="gap:2px;flex:1"><span style="font-size:16px;font-weight:800">Турция · 5 ГБ</span><span class="mu" style="font-size:12px">Осталось 9 дней из 15</span></span><span class="chip" style="height:26px;background:#12251C;color:var(--ok)">В работе</span></div>
+  <div class="col" style="gap:6px"><div class="row between" style="font-size:13px"><span class="mu">Использовано</span><b>1,8 из 5 ГБ</b></div><div style="height:10px;border-radius:5px;background:var(--s3);overflow:hidden"><div style="width:36%;height:100%;border-radius:5px;background:var(--ok)"></div></div></div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><button class="cta" style="height:44px;font-size:14px;border-radius:13px" onclick="set({ev:'buy'})">Докупить трафик</button><button class="btn2" style="height:44px;background:var(--s3)" onclick="toast('Инструкция — скоро')">Как включить</button></div></div>
+ <div class="box col" style="padding:16px;gap:12px;border-radius:22px"><div class="row" style="gap:12px"><span style="width:42px;height:42px;border-radius:14px;background:var(--s3);color:#C9CBD3;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800">TH</span><span class="col" style="gap:2px;flex:1"><span style="font-size:16px;font-weight:800">Таиланд · Безлимит</span><span class="mu" style="font-size:12px">7 дней · срок ещё не начался</span></span><span class="chip" style="height:26px;background:#2A1F12;color:#F5C46B">Не установлена</span></div>
+  <span class="mu" style="font-size:13px">Установите заранее, пока есть Wi-Fi. Включите линию eSIM, когда прилетите.</span>
+  ${[['Установить в 1 нажатие','iPhone с iOS 17.4 и новее'],['Показать QR-код','Отсканируйте с другого экрана'],['Ввести вручную','SM-DP+ адрес и код активации']].map((m,k)=>`<button class="row" style="gap:12px;padding:12px 14px;border-radius:15px;background:var(--s2);border:1.5px solid ${k===S.inst?A:'transparent'};text-align:left" onclick="hap();set({inst:${k}});toast('${m[0]} — демо')"><span class="col" style="gap:2px;flex:1"><span style="font-size:14px;font-weight:800">${m[0]}</span><span class="mu" style="font-size:12px">${m[1]}</span></span><span class="mu">${sv(I.right,18,2)}</span></button>`).join('')}</div>`}`;
+};
+
+V.receipt=()=>{
+ const t=RECEIPTS[S.rtype]||RECEIPTS.card;
+ const zig='M0 0h312v2'+'l-6 10-6-10'.repeat(26)+'z';
+ const now=new Date();const dt=now.toLocaleDateString('ru-RU')+' '+now.toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'});
+ return `<div class="col" style="align-items:center;gap:10px;padding-top:10px"><span style="width:56px;height:56px;border-radius:28px;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center">${sv(I.check,28,2.6)}</span><span class="u" style="font-weight:600;font-size:22px">${t.head}</span></div>
+ <div class="col" style="padding:0 6px">
+  <div style="position:relative;z-index:2;height:14px;border-radius:7px;background:var(--s3);box-shadow:inset 0 -4px 0 #050506"></div>
+  <div style="position:relative;margin:-6px 10px 0;overflow:hidden;padding-bottom:14px">
+   <div id="paper" class="printing col mono" style="position:relative;background:#FBFAF6;color:#1B1A17;padding:22px 18px 20px;gap:10px">
+    <div class="col" style="align-items:center;gap:3px;text-align:center"><span class="u" style="font-weight:800;font-size:15px;letter-spacing:2px">${BRAND.name.toUpperCase()}</span><span style="font-size:10px;color:#5E5A52">${t.op} · № ${t.id}</span><span style="font-size:10px;color:#5E5A52">${dt} · @${user.username||user.first_name}</span></div>
+    <div style="border-top:1.5px dashed #B9B3A6"></div>
+    <div class="col" style="gap:7px;font-size:12px">${t.rows.map(r=>`<div class="row" style="align-items:baseline;gap:6px"><span style="white-space:nowrap">${r[0]}</span><span style="flex:1;border-bottom:1.5px dotted #B9B3A6;transform:translateY(-3px)"></span><b style="white-space:nowrap">${r[1]}</b></div>`).join('')}</div>
+    <div style="border-top:1.5px dashed #B9B3A6"></div>
+    <div class="row between" style="align-items:baseline"><span style="font-size:12px;font-weight:800;letter-spacing:1px">ИТОГО</span><span class="u" style="font-weight:800;font-size:24px">${t.total}</span></div>
+    <div class="row between" style="margin-top:4px"><svg width="150" height="34" viewBox="0 0 150 34" aria-hidden="true"><g fill="#1B1A17">${[0,5,9,13,20,24,29,34,38,45,50,54,60,65,72,76,81,87,91,98,103,107,113,118,125,129,135,140,144].map((x,i)=>`<rect x="${x}" width="${[3,1,2,4][i%4]}" height="34"/>`).join('')}</g></svg>
+     <div class="col" style="transform:rotate(-10deg);border:2.5px solid ${mix(A,'#1B1A17',.15)};color:${mix(A,'#1B1A17',.15)};border-radius:9px;padding:4px 8px;align-items:center"><span style="font-size:9px;font-weight:800;letter-spacing:1px">ОПЛАЧЕНО</span><span class="u" style="font-weight:700;font-size:13px">${M}</span></div></div>
+    <svg width="100%" height="12" viewBox="0 0 312 12" preserveAspectRatio="none" aria-hidden="true" style="position:absolute;left:0;bottom:-11px"><path fill="#FBFAF6" d="${zig}"/></svg>
+   </div></div>
+  <button style="align-self:center;margin-top:8px;height:34px;padding:0 14px;border-radius:17px;font-size:12px;font-weight:800;color:var(--mu);background:var(--s1)" onclick="reprint()">Напечатать ещё раз</button>
+ </div>
+ <div class="bottom"><button class="cta" style="height:52px;font-size:15px;gap:8px" onclick="sendReceipt()">${sv(I.plane,18,2.2)}Отправить чек в бот</button><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><button class="btn2" onclick="toast('Сохранение картинкой — скоро')">Сохранить</button><button class="btn2" onclick="go('home')">На главную</button></div></div>`;
+};
+function reprint(){const p=document.getElementById('paper');if(!p)return;p.classList.remove('printing');void p.offsetWidth;p.classList.add('printing');hap()}
+function sendReceipt(){ok();toast('Чек отправлен в бот — демо')}
+
+V.history=()=>{
+ const rub=S.cur==='rub';
+ const rows=HIST.filter(r=>S.hf==='Все'||r[5]===S.hf);
+ const groups=[];rows.forEach(r=>{let g=groups.find(x=>x.l===r[0]);if(!g){g={l:r[0],i:[]};groups.push(g)}g.i.push(r)});
+ return `<div class="row between">${inTg?'<span class="h1">История</span>':`<div class="row" style="gap:4px"><button aria-label="Назад" onclick="back()" style="width:36px;height:44px;margin-left:-8px;display:flex;align-items:center;justify-content:center">${sv(I.back,22,2)}</button><span class="h1">История</span></div>`}${curToggle()}</div>
+ <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><div class="box col" style="padding:14px;gap:4px;border-radius:18px"><span class="mu" style="font-size:12px">Потрачено в ноябре</span><span class="u" style="font-weight:600;font-size:19px">${rub?'9 860 ₽':'$107.20'}</span></div><div class="box col" style="padding:14px;gap:4px;border-radius:18px"><span class="mu" style="font-size:12px">Пополнено</span><span class="u" style="font-weight:600;font-size:19px;color:var(--ok)">${rub?'+9 600 ₽':'+$104.35'}</span></div></div>
+ <div class="hs">${['Все','Карты','Пополнения','Сервисы'].map(n=>`<button class="pill ${n===S.hf?'on':''}" onclick="hap();set({hf:'${n}'})">${n}</button>`).join('')}</div>
+ ${groups.length?groups.map(g=>`<div class="col"><span style="font-size:12px;font-weight:800;color:#8E909A;letter-spacing:1px;padding:4px 0 6px">${g.l}</span>${g.i.map(r=>txRow({m:r[1],n:r[2],s:r[3],a:r[4],bad:r[7]},r[6]?`go('receipt',{rtype:'${r[6]}'})`:'')).join('')}</div>`).join(''):`<div style="padding:30px 0;text-align:center;font-size:14px;color:#8E909A">В этой категории пока пусто</div>`}`;
+};
+
+V.profile=()=>{
+ const base=[['Пополнение','[%]'],['Лимит в месяц','[сумма]'],['Кэшбэк','нет'],['Поддержка','обычная']],pl=[['Пополнение','[% ниже]'],['Лимит в месяц','[× N]'],['Кэшбэк','[%]'],['Поддержка','24/7, без очереди']];
+ const rows=S.plusMode?pl:base;
+ const code=(user.username||'aboba').toUpperCase().slice(0,8)+String(user.id||119).slice(-3);
+ const tgl=(n,s,on,key)=>`<button role="switch" aria-checked="${on}" class="row" style="width:100%;min-height:54px;gap:12px;border-bottom:1px solid var(--s3);text-align:left" onclick="hap();set({${key}:!S.${key}})"><span class="col" style="gap:2px;flex:1"><span style="font-size:15px;font-weight:700">${n}</span><span class="mu" style="font-size:12px">${s}</span></span><span style="width:46px;height:28px;border-radius:14px;background:${on?A:'#3A3C45'};position:relative;flex-shrink:0"><span style="position:absolute;top:3px;left:${on?21:3}px;width:22px;height:22px;border-radius:11px;background:#fff;transition:left .2s"></span></span></button>`;
+ return `<div class="row" style="gap:14px">${user.photo_url?`<img src="${user.photo_url}" alt="" style="width:56px;height:56px;border-radius:18px;object-fit:cover">`:`<div class="u" style="width:56px;height:56px;border-radius:18px;background:var(--s3);display:flex;align-items:center;justify-content:center;font-weight:600;font-size:20px">${(user.first_name||'?')[0]}</div>`}<div class="col" style="gap:4px;flex:1"><span style="font-weight:800;font-size:18px">${user.first_name||'Гость'}</span><span class="mu" style="font-size:13px">${user.username?'@'+user.username+' · ':''}ID ${user.id}</span></div><span class="chip" style="height:28px;padding:0 12px;font-size:12px;${S.plus?'background:var(--accent);color:#fff':'background:var(--s3);color:#C9CBD3'}">${S.plus?'Plus':'Базовый'}</span></div>
+ <div class="col" style="position:relative;overflow:hidden;border-radius:24px;background:${mix(A,'#0E0F13',.15)};padding:18px;gap:14px;color:#fff"><span class="wm" style="right:-14px;top:-50px;font-size:200px;color:rgba(255,255,255,.08)">+</span>
+  <div class="row between" style="position:relative"><span class="u" style="font-weight:700;font-size:21px">${BRAND.name.split(' ')[0]} Plus</span><div class="row" style="gap:2px;padding:3px;border-radius:14px;background:rgba(0,0,0,.25)">${[['Базовый',0],['Plus',1]].map(([n,k])=>`<button style="height:28px;padding:0 10px;border-radius:11px;font-size:12px;font-weight:800;${k===S.plusMode?'background:#fff;color:#0E0F13':''}" onclick="hap();set({plusMode:${k}})">${n}</button>`).join('')}</div></div>
+  <div class="col" style="position:relative;border-radius:16px;background:rgba(0,0,0,.22);padding:2px 14px">${rows.map((r,k)=>`<div class="row between" style="padding:10px 0;font-size:14px;${k<rows.length-1?'border-bottom:1px solid rgba(255,255,255,.12)':''}"><span style="opacity:.8">${r[0]}</span><b>${r[1]}</b></div>`).join('')}</div>
+  <button style="position:relative;height:48px;border-radius:14px;background:#fff;color:#0E0F13;font-size:15px;font-weight:800" onclick="ok();set({plus:!S.plus})">${S.plus?'Plus подключён · управлять':'Подключить Plus · [цена] / мес'}</button></div>
+ <div class="col" style="gap:10px"><span class="h2">Приглашай друзей</span>
+  <div style="position:relative;display:flex;height:124px;border-radius:18px;overflow:hidden;background:var(--tx);color:var(--bg)">
+   <div class="col between" style="flex:1;padding:14px 16px"><span style="font-size:11px;font-weight:800;letter-spacing:1px;color:#5A5D66">ПРИГЛАШЕНИЕ В ${BRAND.name.toUpperCase()}</span><span class="mono" style="font-weight:800;font-size:22px;letter-spacing:1px">${code}</span><span style="font-size:12px;color:#5A5D66">Друг выпускает карту — бонус обоим</span></div>
+   <div style="border-left:2px dashed #B8BBC3;margin:12px 0"></div>
+   <div class="col" style="width:104px;flex-shrink:0;background:var(--accent);color:#fff;align-items:center;justify-content:center;gap:2px"><span class="u" style="font-weight:700;font-size:18px">[$]</span><span style="font-size:11px;font-weight:800">тебе и другу</span></div>
+   <span style="position:absolute;right:95px;top:-9px;width:18px;height:18px;border-radius:9px;background:var(--bg)"></span><span style="position:absolute;right:95px;bottom:-9px;width:18px;height:18px;border-radius:9px;background:var(--bg)"></span></div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><button class="cta" style="height:48px;font-size:14px;border-radius:14px" onclick="shareRef()">Отправить в Telegram</button><button class="btn2" onclick="copyRef()">Скопировать ссылку</button></div>
+  <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px">${[['Перешли','0'],['Выпустили','0'],['Заработано','[$]']].map((x,k)=>`<div class="box col" style="padding:12px;gap:2px;border-radius:14px"><span class="mu" style="font-size:11px">${x[0]}</span><span class="u" style="font-size:17px;font-weight:600;${k===2?'color:var(--ok)':''}">${x[1]}</span></div>`).join('')}</div></div>
+ <div class="box" style="padding:0 16px">${tgl('ПИН-код на вход','Спрашивать при открытии',S.pin,'pin')}${tgl('Уведомления','Операции и коды в бот',S.push,'push')}
+  ${[['Язык','Русский'],['Поддержка','24/7'],['Тарифы и лимиты',''],['Документы',''],['Показать заставку','']].map((l,k,a)=>`<button class="row" style="width:100%;min-height:52px;gap:12px;${k<a.length-1?'border-bottom:1px solid var(--s3)':''}" onclick="${l[0]==='Показать заставку'?"go('onboarding')":`toast('${l[0]} — скоро')`}"><span style="flex:1;text-align:left;font-size:15px;font-weight:700">${l[0]}</span><span class="mu" style="font-size:14px">${l[1]}</span><span class="mu">${sv(I.right,18,2)}</span></button>`).join('')}</div>
+ <span style="font-size:12px;color:#8E909A;text-align:center">${BRAND.name} · драфт v3 · данные демонстрационные</span>`;
+};
+function refLink(){return 'https://t.me/OCTproBot?start=ref_'+(user.id||0)}
+function copyRef(){try{navigator.clipboard.writeText(refLink())}catch(e){}ok();toast('Ссылка скопирована')}
+function shareRef(){const u='https://t.me/share/url?url='+encodeURIComponent(refLink())+'&text='+encodeURIComponent('Карта для подписок и поездок прямо в Telegram');if(tg&&tg.openTelegramLink)tg.openTelegramLink(u);else window.open(u,'_blank')}
+
+/* ---------- рендер и жесты ---------- */
+const FULL=['onboarding'];
 function render(){
-  const sub = !TABS.includes(S.screen);
-  const tab = (id, icon, label) => `<button class="${S.screen===id?'on':''}" onclick="go('${id}')">${icon}${label}</button>`;
-  document.getElementById('app').innerHTML =
-    `<main class="page ${sub?'sub':''}">${V[S.screen]()}</main>` +
-    (sub ? '' : `<nav class="tabs" aria-label="Навигация">${tab('home',I.home,'Главная')}${tab('card',I.card,'Карты')}<div><button class="qr" aria-label="Оплата по QR — скоро" onclick="toast('Оплата по QR: скоро')">${I.qr}</button></div>${tab('services',I.grid,'Сервисы')}${tab('profile',I.user,'Профиль')}</nav>`);
-  if (tg) { sub ? tg.BackButton.show() : tg.BackButton.hide(); }
+ const s=S.screen,sub=!TABS.includes(s)&&!FULL.includes(s);
+ const tab=(id,ic,l)=>`<button class="${s===id?'on':''}" onclick="go('${id}')">${sv(ic)}${l}</button>`;
+ document.getElementById('app').innerHTML=(FULL.includes(s)?V[s]():`<main class="page ${sub?'sub':''}" style="position:relative">${V[s]()}</main>`)+(sub||FULL.includes(s)?'':`<nav class="tabs" aria-label="Навигация">${tab('home',I.home,'Главная')}${tab('card',I.card,'Карты')}${tab('catalog',I.grid,'Сервисы')}${tab('profile',I.user,'Профиль')}</nav>`);
+ if(tg){sub?tg.BackButton.show():tg.BackButton.hide()}
+ if(s==='topup'){updRuler();bindRuler()}
+ if(s==='store')bindStage();
 }
+function bindRuler(){const el=document.getElementById('ruler');if(!el)return;let d=null;
+ el.addEventListener('pointerdown',e=>{d={x:e.clientX,v:S[TOP().key]};try{el.setPointerCapture(e.pointerId)}catch(_){}});
+ el.addEventListener('pointermove',e=>{if(!d)return;const c=TOP();const nv=Math.max(c.min,Math.min(c.max,Math.round((d.v-((e.clientX-d.x)/12)*c.step)/c.step)*c.step));if(nv!==S[c.key]){S[c.key]=nv;updRuler();try{tg&&tg.HapticFeedback.selectionChanged()}catch(_){}}});
+ const end=()=>{d=null};el.addEventListener('pointerup',end);el.addEventListener('pointercancel',end)}
+function bindStage(){const st=document.getElementById('stage'),cd=document.getElementById('scard');if(!st||!cd)return;let sx=null,busy=false;
+ st.addEventListener('pointerdown',e=>{sx=e.clientX});
+ st.addEventListener('pointermove',e=>{if(busy||e.pointerType==='touch'&&sx===null)return;const r=st.getBoundingClientRect();const px=(e.clientX-r.left)/r.width-.5,py=(e.clientY-r.top)/r.height-.5;cd.style.transition='transform .15s ease-out';cd.style.transform=`rotateY(${S.spin+Math.round(px*30)}deg) rotateX(${Math.round(-py*20)}deg)`});
+ const up=e=>{if(sx===null)return;const dx=e.clientX-sx;sx=null;if(Math.abs(dx)>40){busy=true;spin(dx<0?1:-1)}};
+ st.addEventListener('pointerup',up);st.addEventListener('pointercancel',()=>{sx=null});
+ st.addEventListener('pointerleave',()=>{sx=null;cd.style.transform=`rotateY(${S.spin}deg)`})}
 render();
 </script>
 </body>
