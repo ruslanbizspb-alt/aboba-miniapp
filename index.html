@@ -32,6 +32,8 @@ input{font:inherit}input::placeholder{color:#8A8D98}
 .pill{height:36px;padding:0 14px;border-radius:18px;background:var(--s1);color:#C9CBD3;font-size:13px;font-weight:800;white-space:nowrap;flex-shrink:0}
 .pill.on{background:var(--tx);color:var(--bg)}
 .hs{display:flex;gap:8px;overflow-x:auto;margin:0 -16px;padding:0 16px;scrollbar-width:none}.hs::-webkit-scrollbar{display:none}
+.car{display:flex;gap:12px;overflow-x:auto;margin:0 -16px;padding:4px 16px 18px;scroll-snap-type:x mandatory;scroll-padding:0 16px;scrollbar-width:none}.car::-webkit-scrollbar{display:none}
+.car>*{flex-shrink:0;scroll-snap-align:start}
 .cta{height:54px;border-radius:16px;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;width:100%}
 .cta.off{background:var(--s3);color:#8E909A}
 .btn2{height:48px;border-radius:14px;background:var(--s2);font-size:14px;font-weight:800;display:flex;align-items:center;justify-content:center}
@@ -101,7 +103,7 @@ const ok=()=>{try{tg&&tg.HapticFeedback.notificationOccurred('success')}catch(e)
 const store={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
 
 /* ---------- состояние ---------- */
-const S={screen:store.get('aboba_seen')?'home':'onboarding',stack:[],cur:'usd',mine:P.get('empty')?[]:[0,1],hcard:-1,tcard:0,pay:null,pm:'sbp',rm:'sbp',lastAmt:'',
+const S={screen:'onboarding',stack:[],cur:'usd',mine:P.get('empty')?[]:[0,1],hcard:-1,tcard:0,pay:null,pm:'sbp',rm:'sbp',lastAmt:'',
   card:0,flipped:false,frozen:[false,false],limits:false,
   st:0,spin:0,spinShown:0,
   m:'rub',rub:5000,usdt:50,net:0,addr:false,
@@ -172,6 +174,19 @@ const emptyCard=()=>`<div class="col" style="align-items:center;gap:18px;padding
   </div></button>
  <span class="mu" style="font-size:14px;text-align:center;max-width:290px;line-height:1.5">У вас пока нет карты. Нажмите на неё — выпуск занимает 2 минуты, оплата рублями или USDT.</span>
 </div>`;
+
+const svcStrip=()=>`<div class="col" style="gap:12px;padding:14px 0 14px 14px;border-radius:20px;background:linear-gradient(120deg,#15161B,#1A1B22);border:1px solid #23252D">
+ <div class="row between" style="padding-right:14px"><span class="col" style="gap:2px"><span style="font-size:15px;font-weight:800">Сервисы</span><span class="mu" style="font-size:12px">Оплатите картой за пару нажатий</span></span><button style="font-size:13px;font-weight:800;color:var(--soft)" onclick="go('catalog')">Все 40+</button></div>
+ <div class="row" style="gap:12px;overflow-x:auto;padding-right:14px;scrollbar-width:none">${[['St','Steam','games',"go('steam')"],['eS','eSIM','travel',"go('esim')"],['AI','ChatGPT','ai',"go('catalog',{cat:'AI'})"],['Sp','Spotify','subs',"go('catalog',{cat:'Подписки'})"],['PS','PlayStation','games',"go('catalog',{cat:'Игры'})"],['AS','App Store','apps',"go('catalog',{cat:'Приложения'})"]].map(x=>`<button class="col" style="flex-shrink:0;width:60px;align-items:center;gap:6px" onclick="${x[3]}"><span class="u" style="width:52px;height:52px;border-radius:17px;background:${CC[x[2]][0]};color:${CC[x[2]][1]};display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px">${x[0]}</span><span style="font-size:11px;font-weight:700;color:#C9CBD3;white-space:nowrap">${x[1]}</span></button>`).join('')}</div>
+</div>`;
+const plusBlock=()=>S.plus?`<button class="row" style="gap:12px;padding:12px 14px;border-radius:18px;background:${A}1F;border:1px solid ${A}55;text-align:left" onclick="go('profile')"><span class="u" style="width:38px;height:38px;border-radius:12px;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800">+</span><span class="col" style="gap:2px;flex:1"><span style="font-size:14px;font-weight:800">Тариф Plus</span><span class="mu" style="font-size:12px">Комиссия за пополнение ниже, лимиты выше</span></span><span class="mu">${sv(I.right,18,2)}</span></button>`
+:`<div class="col" style="position:relative;overflow:hidden;gap:12px;padding:16px;border-radius:20px;background:linear-gradient(125deg,${mix(A,'#0E0F13',.1)} 0%,${mix(A,'#0E0F13',.45)} 100%);color:#fff">
+ <span class="wm" style="right:-12px;top:-46px;font-size:170px;color:rgba(255,255,255,.08)">+</span>
+ <div class="row" style="position:relative;gap:8px"><span class="chip" style="height:24px;background:rgba(0,0,0,.25);color:#fff">Ваш тариф: Базовый</span></div>
+ <span class="u" style="position:relative;font-weight:600;font-size:17px;line-height:1.3">Перейдите на Plus и сэкономьте на комиссии</span>
+ <span style="position:relative;font-size:13px;opacity:.85">Пополнение дешевле на [N]%, лимиты выше, кэшбэк [%]</span>
+ <button style="position:relative;align-self:flex-start;height:40px;padding:0 16px;border-radius:12px;background:#fff;color:#0E0F13;font-size:14px;font-weight:800" onclick="go('profile')">Перейти на Plus</button>
+</div>`;
 function openPay(kind){hap();S.pay={kind,step:kind==='card'?'method':'invoice'};if(kind==='topup')S.pm=S.m==='rub'?'sbp':'usdt';render()}
 function finishPay(){ok();const k=S.pay.kind;S.rm=S.pm;if(k==='card'){if(!S.mine.includes(S.st))S.mine.push(S.st);S.tcard=S.st;S.card=S.st;S.lastAmt='[цена]'}else{S.lastAmt=amtLabel()}S.pay=null;go('receipt',{rtype:k==='card'?'card':'topup'})}
 function paySheet(){
@@ -223,25 +238,32 @@ V.onboarding=()=>`<div class="ob col" style="min-height:100vh;position:relative;
 V.home=()=>{
  const mine=S.mine.map(i=>({...CARDS[i],i}));
  const head=`<div class="row between"><div class="row" style="gap:10px"><div class="u" style="width:34px;height:34px;border-radius:11px;background:var(--accent);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:15px;color:#fff">${M}</div><span style="font-weight:800;font-size:16px">${BRAND.name}</span></div>${mine.length?curToggle():''}</div>`;
- if(!mine.length)return head+emptyCard()+`<div class="box list">${[['Онлайн-карта','Подписки, AI, игры · от [$5–10]'],['Карта для телефона','Apple Pay и Google Pay · [цена]'],['Пластик','С доставкой · [цена]']].map(r=>`<button class="li" style="width:100%;text-align:left" onclick="go('store',{st:${['Онлайн-карта','Карта для телефона','Пластик'].indexOf(r[0])}})"><span class="col" style="gap:2px"><b style="font-size:15px">${r[0]}</b><span class="mu" style="font-size:12px">${r[1]}</span></span><span class="mu">${sv(I.right,18,2)}</span></button>`).join('')}</div>`;
+ if(!mine.length)return head+emptyCard()+svcStrip()+`<div class="box list">${[['Онлайн-карта','Подписки, AI, игры · от [$5–10]',0],['Карта для телефона','Apple Pay и Google Pay · [цена]',1],['Пластик','С доставкой · [цена]',2]].map(r=>`<button class="li" style="width:100%;text-align:left" onclick="go('store',{st:${r[2]}})"><span class="col" style="gap:2px"><b style="font-size:15px">${r[0]}</b><span class="mu" style="font-size:12px">${r[1]}</span></span><span class="mu">${sv(I.right,18,2)}</span></button>`).join('')}</div>`;
  const usd=S.cur==='usd',tot=mine.reduce((a,c)=>a+c.usd,0);
  const money=v=>usd?fd(v):fr(v*R);
  const all=[];mine.forEach(c=>c.tx.forEach(t=>all.push({...t,ci:c.i,cn:c.short})));
  const list=(S.hcard<0?all:all.filter(t=>t.ci===S.hcard)).slice(0,6);
- return head+`<div class="col" style="gap:4px"><span class="mu" style="font-size:13px">Всего на картах</span><span class="u" style="font-weight:600;font-size:38px;letter-spacing:-1px;line-height:1.1">${money(tot)}</span><span class="mu" style="font-size:13px">≈ ${usd?fr(tot*R):fd(tot)} · курс для примера 1 $ = 92 ₽</span></div>
- <div class="hs" style="gap:10px;scroll-snap-type:x mandatory">${mine.map(c=>`<button onclick="go('card',{card:${c.i}})" class="cardf" style="flex-shrink:0;width:236px;height:148px;border-radius:20px;background:${c.bg};color:${c.fg};text-align:left;scroll-snap-align:start;box-shadow:0 14px 30px rgba(0,0,0,.35)">
-   <div class="wm" style="right:-18px;bottom:-56px;font-size:190px;color:${c.fg==='#fff'?'rgba(255,255,255,.08)':'rgba(0,0,0,.07)'}">${M[0]}</div>
-   <div class="u" style="position:absolute;left:14px;top:14px;width:26px;height:26px;border-radius:8px;background:${c.logoBg};color:${c.logoFg};font-weight:800;font-size:12px;display:flex;align-items:center;justify-content:center">${M}</div>
-   <span style="position:absolute;right:14px;top:18px;font-size:10px;font-weight:800;letter-spacing:1px;opacity:.85">${c.tag}</span>
-   <span class="u" style="position:absolute;left:14px;bottom:38px;font-weight:600;font-size:24px">${money(c.usd)}</span>
-   <span class="mono" style="position:absolute;left:14px;bottom:14px;font-size:12px;font-weight:700;letter-spacing:1px;opacity:.8">${c.short} •• ${c.last}</span></button>`).join('')}
-  <button onclick="go('store')" style="flex-shrink:0;width:120px;height:148px;border-radius:20px;border:1.5px dashed #34363F;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;color:#C9CBD3;font-size:13px;font-weight:800;scroll-snap-align:start"><span style="width:40px;height:40px;border-radius:13px;background:var(--s2);display:flex;align-items:center;justify-content:center">${sv(I.plus,20,2)}</span>Новая карта</button></div>
- <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><button class="cta" style="height:52px;font-size:15px;gap:8px" onclick="go('topup',{tcard:${mine[0].i}})">${sv(I.plus,20,2.2)}Пополнить карту</button><button class="btn2" style="height:52px;font-size:15px;gap:8px" onclick="go('store')">${sv(I.card,20)}Новая карта</button></div>
+ const W='calc(100vw - 56px)';
+ return head+`<div class="row between" style="align-items:flex-end"><div class="col" style="gap:2px"><span class="mu" style="font-size:13px">Всего на картах</span><span class="u" style="font-weight:600;font-size:26px;letter-spacing:-.5px">${money(tot)}</span></div><span class="mu" style="font-size:12px;text-align:right">≈ ${usd?fr(tot*R):fd(tot)}<br>курс для примера 1 $ = 92 ₽</span></div>
+ <div id="car" class="car">${mine.map(c=>`<button onclick="go('card',{card:${c.i}})" class="cardf" style="width:${W};max-width:400px;aspect-ratio:1.586;border-radius:24px;background:${c.bg};color:${c.fg};text-align:left;box-shadow:0 20px 40px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.15)">
+   <div class="wm" style="right:-26px;bottom:-70px;font-size:250px;color:${c.fg==='#fff'?'rgba(255,255,255,.08)':'rgba(0,0,0,.07)'}">${M[0]}</div>
+   <div class="row" style="position:absolute;left:18px;top:18px;gap:8px"><div class="u" style="width:30px;height:30px;border-radius:9px;background:${c.logoBg};color:${c.logoFg};font-weight:800;font-size:14px;display:flex;align-items:center;justify-content:center">${M}</div><span style="font-weight:800;font-size:14px">${BRAND.name}</span></div>
+   <span style="position:absolute;right:18px;top:24px;font-size:11px;font-weight:800;letter-spacing:1px;opacity:.85">${c.tag}</span>
+   <div class="col" style="position:absolute;left:18px;bottom:44px;gap:2px"><span style="font-size:12px;opacity:.75">Баланс</span><span class="u" style="font-weight:600;font-size:32px;letter-spacing:-.5px">${money(c.usd)}</span></div>
+   <span class="mono" style="position:absolute;left:18px;bottom:16px;font-size:13px;font-weight:700;letter-spacing:2px;opacity:.85">${c.short} •• ${c.last}</span>
+   <span style="position:absolute;right:18px;bottom:16px;font-size:12px;font-weight:800;opacity:.8">USD</span></button>`).join('')}
+  <button onclick="go('store')" style="width:${W};max-width:400px;aspect-ratio:1.586;border-radius:24px;border:1.5px dashed #34363F;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;color:#C9CBD3;font-size:15px;font-weight:800"><span style="width:48px;height:48px;border-radius:16px;background:var(--s2);display:flex;align-items:center;justify-content:center">${sv(I.plus,22,2)}</span>Новая карта<span class="mu" style="font-size:12px;font-weight:600">Онлайн, Wallet или пластик</span></button></div>
+ <div id="dots" class="row" style="justify-content:center;gap:6px;margin-top:-10px">${[...mine,0].map((_,k)=>`<span style="width:${k?6:20}px;height:6px;border-radius:3px;background:${k?'#3A3C45':'var(--tx)'};transition:all .25s"></span>`).join('')}</div>
+ <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><button class="cta" style="height:52px;font-size:15px;gap:8px" onclick="go('topup',{tcard:curCard()})">${sv(I.plus,20,2.2)}Пополнить карту</button><button class="btn2" style="height:52px;font-size:15px;gap:8px" onclick="go('store')">${sv(I.card,20)}Новая карта</button></div>
+ ${plusBlock()}
+ ${svcStrip()}
  <div class="col" style="gap:2px"><div class="row between" style="padding-bottom:8px"><span class="h2">Операции</span><button style="font-size:14px;font-weight:800;color:var(--soft)" onclick="go('history')">Все</button></div>
   ${mine.length>1?`<div class="hs" style="margin-bottom:6px"><button class="pill ${S.hcard<0?'on':''}" onclick="hap();set({hcard:-1})">Все карты</button>${mine.map(c=>`<button class="pill ${S.hcard===c.i?'on':''}" onclick="hap();set({hcard:${c.i}})">${c.short} •• ${c.last}</button>`).join('')}</div>`:''}
   ${list.map(t=>txRow({...t,s:t.cn+' · '+t.s},t.r?`go('receipt',{rtype:'${t.r}',tcard:${t.ci},rm:'${t.u?'usdt':'sbp'}'})`:'')).join('')}
  </div>`;
 };
+function curCard(){const el=document.getElementById('car');if(!el)return S.mine[0];const w=el.firstElementChild?el.firstElementChild.offsetWidth+12:1;const k=Math.round(el.scrollLeft/w);return S.mine[Math.min(k,S.mine.length-1)]}
+function bindCar(){const el=document.getElementById('car'),d=document.getElementById('dots');if(!el||!d)return;el.addEventListener('scroll',()=>{const w=el.firstElementChild.offsetWidth+12;const k=Math.round(el.scrollLeft/w);[...d.children].forEach((x,i)=>{x.style.width=i===k?'20px':'6px';x.style.background=i===k?'var(--tx)':'#3A3C45'})},{passive:true})}
 
 V.card=()=>{
  if(!S.mine.length)return `<span class="h1">Мои карты</span>`+emptyCard();
@@ -454,7 +476,7 @@ V.profile=()=>{
   <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px">${[['Перешли','0'],['Выпустили','0'],['Заработано','[$]']].map((x,k)=>`<div class="box col" style="padding:12px;gap:2px;border-radius:14px"><span class="mu" style="font-size:11px">${x[0]}</span><span class="u" style="font-size:17px;font-weight:600;${k===2?'color:var(--ok)':''}">${x[1]}</span></div>`).join('')}</div></div>
  <div class="box" style="padding:0 16px">${tgl('ПИН-код на вход','Спрашивать при открытии',S.pin,'pin')}<button role="switch" aria-checked="${!S.mine.length}" class="row" style="width:100%;min-height:54px;gap:12px;border-bottom:1px solid var(--s3);text-align:left" onclick="hap();set({mine:S.mine.length?[]:[0,1]})"><span class="col" style="gap:2px;flex:1"><span style="font-size:15px;font-weight:700">Демо: ещё нет карт</span><span class="mu" style="font-size:12px">Показать экраны для нового пользователя</span></span><span style="width:46px;height:28px;border-radius:14px;background:${!S.mine.length?A:'#3A3C45'};position:relative;flex-shrink:0"><span style="position:absolute;top:3px;left:${!S.mine.length?21:3}px;width:22px;height:22px;border-radius:11px;background:#fff"></span></span></button>${tgl('Уведомления','Операции и коды в бот',S.push,'push')}
   ${[['Язык','Русский'],['Поддержка','24/7'],['Тарифы и лимиты',''],['Документы',''],['Показать заставку','']].map((l,k,a)=>`<button class="row" style="width:100%;min-height:52px;gap:12px;${k<a.length-1?'border-bottom:1px solid var(--s3)':''}" onclick="${l[0]==='Показать заставку'?"go('onboarding')":`toast('${l[0]} — скоро')`}"><span style="flex:1;text-align:left;font-size:15px;font-weight:700">${l[0]}</span><span class="mu" style="font-size:14px">${l[1]}</span><span class="mu">${sv(I.right,18,2)}</span></button>`).join('')}</div>
- <span style="font-size:12px;color:#8E909A;text-align:center">${BRAND.name} · драфт v3.1 · данные демонстрационные</span>`;
+ <span style="font-size:12px;color:#8E909A;text-align:center">${BRAND.name} · драфт v3.2 · данные демонстрационные</span>`;
 };
 function refLink(){return 'https://t.me/OCTproBot?start=ref_'+(user.id||0)}
 function copyRef(){try{navigator.clipboard.writeText(refLink())}catch(e){}ok();toast('Ссылка скопирована')}
@@ -469,6 +491,7 @@ function render(){
  if(tg){sub?tg.BackButton.show():tg.BackButton.hide()}
  if(s==='topup'&&document.getElementById('ruler')){updRuler();bindRuler()}
  if(s==='store')bindStage();
+ if(s==='home')bindCar();
 }
 function bindRuler(){const el=document.getElementById('ruler');if(!el)return;let d=null;
  el.addEventListener('pointerdown',e=>{d={x:e.clientX,v:S[TOP().key]};try{el.setPointerCapture(e.pointerId)}catch(_){}});
