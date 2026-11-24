@@ -71,6 +71,8 @@ nav.tabs button.on{color:var(--soft);font-weight:800}
 @keyframes glow{from{opacity:0;transform:scale(.6)}to{opacity:1;transform:scale(1)}}
 .ob .card{animation:enter 2.1s cubic-bezier(.16,.84,.24,1) both;will-change:transform,opacity;transform:translateZ(0)}
 .ob:not(.go) *{animation-play-state:paused!important}
+.ob.skip .f3,.ob.skip .f4{animation-delay:0s!important}
+.ob .fcard{animation:rise .7s cubic-bezier(.2,.8,.2,1) both}
 .ob .card{box-shadow:none!important;backface-visibility:visible}
 .ob .cshadow{position:absolute;left:50%;top:50%;width:260px;height:40px;margin:110px 0 0 -130px;border-radius:50%;background:radial-gradient(closest-side,rgba(0,0,0,.55),rgba(0,0,0,0));animation:fade .8s ease 1.6s both}
 @keyframes mark{0%,100%{transform:scale(1);opacity:.9}50%{transform:scale(1.08);opacity:1}}
@@ -142,6 +144,8 @@ const P = new URLSearchParams(location.search);
 function mix(hex,to,t){const a=parseInt(hex.slice(1),16),b=parseInt(to.slice(1),16);const c=s=>Math.round(((a>>s)&255)*(1-t)+((b>>s)&255)*t);return '#'+[16,8,0].map(s=>c(s).toString(16).padStart(2,'0')).join('')}
 const BRAND={name:P.get('name')||'Aboba Card',mark:(P.get('mark')||'A').slice(0,2),accent:'#'+(P.get('accent')||'6D4AFF').replace('#','')};
 (()=>{const r=document.documentElement.style,a=BRAND.accent;r.setProperty('--accent',a);r.setProperty('--soft',mix(a,'#FFFFFF',.45));r.setProperty('--abg',a+'29');r.setProperty('--card',mix(a,'#0E0F13',.2));document.title=BRAND.name})();
+/* Заставка: видео, отрендеренное под бренд (tools/intro/render.py). Для бренда без своего видео — статичная карта. */
+const INTRO_VIDEO=(!P.get('accent')&&!P.get('name')&&!P.get('mark'))?'intro.mp4':(P.get('intro')||'');
 const A=BRAND.accent, SOFT=mix(A,'#FFFFFF',.45), CARD=mix(A,'#0E0F13',.2), M=BRAND.mark;
 
 /* ---------- Telegram ---------- */
@@ -292,11 +296,9 @@ function paySheet(){
 
 
 V.onboarding=()=>`<div class="ob col" style="min-height:100vh;position:relative;overflow:hidden">
- <div class="glowA" aria-hidden="true" style="position:absolute;left:50%;top:150px;width:400px;height:400px;margin-left:-200px;border-radius:200px;background:radial-gradient(closest-side,${A}88,${A}00);will-change:transform,opacity"></div>
- <div style="position:relative;flex:1;display:flex;align-items:center;justify-content:center;perspective:1100px;min-height:380px"><div class="ph" aria-hidden="true">${M}</div><div class="cshadow" aria-hidden="true"></div>
-  <div style="position:relative;width:300px;height:190px"><img class="card" id="obCard" alt="" width="300" height="190" style="display:block;width:300px;height:190px;border-radius:22px;background:${CARD}">
-   <div class="sclip" style="position:absolute;inset:0;border-radius:22px;overflow:hidden;pointer-events:none"><div class="sheen" style="position:absolute;top:0;bottom:0;left:0;width:60%;background:linear-gradient(105deg,rgba(255,255,255,0),rgba(255,255,255,.35) 50%,rgba(255,255,255,0))"></div></div>
-  </div>
+ <div style="position:relative;flex:1;display:flex;align-items:center;justify-content:center;min-height:380px"><div class="ph" aria-hidden="true">${M}</div>
+  ${INTRO_VIDEO?`<video id="obVid" muted playsinline webkit-playsinline preload="auto" aria-hidden="true" style="width:min(100vw,430px);aspect-ratio:390/480;display:block;opacity:0;transition:opacity .12s;background:#0E0F13"></video>`
+  :`<div class="glowA" aria-hidden="true" style="position:absolute;left:50%;top:50%;width:400px;height:400px;margin:-200px 0 0 -200px;border-radius:200px;background:radial-gradient(closest-side,${A}88,${A}00)"></div><img id="obCard" class="fcard" alt="" width="300" height="190" style="position:relative;display:block;width:300px;height:190px;border-radius:22px;background:${CARD}">`}
  </div>
  <div class="f3 col" style="position:relative;padding:0 24px 6px;gap:10px"><span class="u" style="font-weight:600;font-size:26px;line-height:1.2">Карта за 2 минуты прямо в Telegram</span><span style="font-size:15px;line-height:1.5;color:var(--mu)">Подписки, Apple Pay и Google Pay, пластик. Пополняй рублями или криптой.</span></div>
  <div class="f4 col" style="position:relative;padding:14px 16px calc(24px + env(safe-area-inset-bottom));gap:6px"><button class="cta" onclick="store.set('aboba_seen','1');hap();gate(()=>{S.stack=['home'];S.screen='store';render();scrollTo(0,0)})">Выбрать карту</button><button style="height:44px;font-size:14px;font-weight:800;color:var(--mu)" onclick="store.set('aboba_seen','1');hap();gate(()=>{S.stack=[];go('home')})">Сначала осмотреться</button></div>
@@ -566,7 +568,7 @@ V.profile=()=>{
   <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px">${[['Перешли','0'],['Выпустили','0'],['Заработано','[$]']].map((x,k)=>`<div class="box col" style="padding:12px;gap:2px;border-radius:14px"><span class="mu" style="font-size:11px">${x[0]}</span><span class="u" style="font-size:17px;font-weight:600;${k===2?'color:var(--ok)':''}">${x[1]}</span></div>`).join('')}</div></div>
  <div class="box" style="padding:0 16px"><button class="row" style="width:100%;min-height:54px;gap:12px;border-bottom:1px solid var(--s3);text-align:left" onclick="gate(()=>{S.stack=[];go('profile')},true)"><span class="col" style="gap:2px;flex:1"><span style="font-size:15px;font-weight:700">${PIN()?'Сменить код':'Задать код'}</span><span class="mu" style="font-size:12px">4 цифры для входа и подтверждений</span></span><span class="mu">${sv(I.right,18,2)}</span></button><button role="switch" aria-checked="${BIO()}" class="row" style="width:100%;min-height:54px;gap:12px;border-bottom:1px solid var(--s3);text-align:left" onclick="if(!PIN()){toast('Сначала задайте код');return}if(BIO()){store.set('aboba_bio','0');render()}else bioAuth('Включить вход по '+bioType).then(r=>{store.set('aboba_bio',r?'1':'0');render()})"><span class="col" style="gap:2px;flex:1"><span style="font-size:15px;font-weight:700">Вход по ${bioType}</span><span class="mu" style="font-size:12px">${bioReal?'Биометрия этого устройства':'В вебе — демо-режим'}</span></span><span style="width:46px;height:28px;border-radius:14px;background:${BIO()?A:'#3A3C45'};position:relative;flex-shrink:0"><span style="position:absolute;top:3px;left:${BIO()?21:3}px;width:22px;height:22px;border-radius:11px;background:#fff"></span></span></button><button class="row" style="width:100%;min-height:52px;gap:12px;border-bottom:1px solid var(--s3);text-align:left" onclick="store.set('aboba_pin','');store.set('aboba_bio','0');toast('Код сброшен — демо');render()"><span style="flex:1;font-size:15px;font-weight:700">Сбросить код · демо</span></button><button role="switch" aria-checked="${!S.mine.length}" class="row" style="width:100%;min-height:54px;gap:12px;border-bottom:1px solid var(--s3);text-align:left" onclick="hap();set({mine:S.mine.length?[]:[0,1]})"><span class="col" style="gap:2px;flex:1"><span style="font-size:15px;font-weight:700">Демо: ещё нет карт</span><span class="mu" style="font-size:12px">Показать экраны для нового пользователя</span></span><span style="width:46px;height:28px;border-radius:14px;background:${!S.mine.length?A:'#3A3C45'};position:relative;flex-shrink:0"><span style="position:absolute;top:3px;left:${!S.mine.length?21:3}px;width:22px;height:22px;border-radius:11px;background:#fff"></span></span></button>${tgl('Уведомления','Операции и коды в бот',S.push,'push')}
   ${[['Язык','Русский'],['Поддержка','24/7'],['Тарифы и лимиты',''],['Документы',''],['Показать заставку','']].map((l,k,a)=>`<button class="row" style="width:100%;min-height:52px;gap:12px;${k<a.length-1?'border-bottom:1px solid var(--s3)':''}" onclick="${l[0]==='Показать заставку'?"go('onboarding')":`toast('${l[0]} — скоро')`}"><span style="flex:1;text-align:left;font-size:15px;font-weight:700">${l[0]}</span><span class="mu" style="font-size:14px">${l[1]}</span><span class="mu">${sv(I.right,18,2)}</span></button>`).join('')}</div>
- <span style="font-size:12px;color:#8E909A;text-align:center">${BRAND.name} · драфт v3.7 · данные демонстрационные</span>`;
+ <span style="font-size:12px;color:#8E909A;text-align:center">${BRAND.name} · драфт v3.8 · данные демонстрационные</span>`;
 };
 function refLink(){return 'https://t.me/OCTproBot?start=ref_'+(user.id||0)}
 function copyRef(){try{navigator.clipboard.writeText(refLink())}catch(e){}ok();toast('Ссылка скопирована')}
@@ -677,8 +679,13 @@ function render(){
  if(s==='store')bindStage();
  if(s==='home')bindCar();
  if(s==='card')bindCCar();
- if(s==='onboarding')introReady().then(async()=>{const im=document.getElementById('obCard');if(im){const u=drawCard();if(u){im.src=u;try{await im.decode()}catch(_){}}}const o=document.querySelector('.ob');if(o)o.classList.add('go')});
+ if(s==='onboarding')startIntro();
 }
+function startIntro(){const o=document.querySelector('.ob'),v=document.getElementById('obVid');if(!o)return;let done=false;const go_=()=>{if(done)return;done=true;o.classList.add('go')};
+ if(!v){introReady().then(()=>{const im=document.getElementById('obCard');if(im){const u=drawCard();if(u)im.src=u}go_()});return}
+ const fail=()=>{if(done)return;v.poster=INTRO_VIDEO.replace(/\.mp4$/,'.jpg');v.style.opacity=1;o.classList.add('skip');go_()};
+ v.addEventListener('playing',()=>{v.style.opacity=1;go_()},{once:true});v.addEventListener('error',fail,{once:true});
+ v.src=INTRO_VIDEO;const pr=v.play();if(pr&&pr.catch)pr.catch(fail);setTimeout(()=>{if(!done)fail()},3000)}
 let _ready=null,_cardImg=null;
 function rr(x,c,y,w,h,r){x.beginPath();x.moveTo(c+r,y);x.arcTo(c+w,y,c+w,y+h,r);x.arcTo(c+w,y+h,c,y+h,r);x.arcTo(c,y+h,c,y,r);x.arcTo(c,y,c+w,y,r);x.closePath()}
 function drawCard(){if(_cardImg)return _cardImg;try{const k=3,W=300,H=190,cv=document.createElement('canvas');cv.width=W*k;cv.height=H*k;const x=cv.getContext('2d');x.scale(k,k);
