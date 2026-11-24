@@ -72,7 +72,11 @@ nav.tabs button.on{color:var(--soft);font-weight:800}
 .printing{animation:print 1.8s cubic-bezier(.3,.7,.3,1) both}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.25}}.pulse{animation:pulse 1.4s ease infinite}
 .seg-bar span{transition:flex-grow .6s cubic-bezier(.2,.8,.2,1)}
-@media (prefers-reduced-motion: reduce){.ob .card,.ob .glowA,.ob .sheen,.ob .f1,.ob .f2,.ob .f3,.ob .f4,.printing,.pulse{animation:none!important}}
+@keyframes shim{0%{transform:translateX(-120%)}60%,100%{transform:translateX(140%)}}
+.shim{animation:shim 3.2s ease-in-out infinite}
+@keyframes floaty{0%,100%{transform:translateY(0) rotate(-3deg)}50%{transform:translateY(-6px) rotate(-1deg)}}
+.floaty{animation:floaty 4s ease-in-out infinite}
+@media (prefers-reduced-motion: reduce){.shim,.floaty{animation:none!important}.ob .card,.ob .glowA,.ob .sheen,.ob .f1,.ob .f2,.ob .f3,.ob .f4,.printing,.pulse{animation:none!important}}
 </style>
 </head>
 <body>
@@ -97,7 +101,7 @@ const ok=()=>{try{tg&&tg.HapticFeedback.notificationOccurred('success')}catch(e)
 const store={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
 
 /* ---------- состояние ---------- */
-const S={screen:store.get('aboba_seen')?'home':'onboarding',stack:[],cur:'rub',
+const S={screen:store.get('aboba_seen')?'home':'onboarding',stack:[],cur:'usd',mine:P.get('empty')?[]:[0,1],hcard:-1,tcard:0,pay:null,pm:'sbp',rm:'sbp',lastAmt:'',
   card:0,flipped:false,frozen:[false,false],limits:false,
   st:0,spin:0,spinShown:0,
   m:'rub',rub:5000,usdt:50,net:0,addr:false,
@@ -108,8 +112,8 @@ const S={screen:store.get('aboba_seen')?'home':'onboarding',stack:[],cur:'rub',
   hf:'Все',
   plusMode:1,plus:false,pin:true,push:true};
 const TABS=['home','card','catalog','profile'];
-function go(s,extra){hap();if(extra)Object.assign(S,extra);if(TABS.includes(s))S.stack=[];else S.stack.push(S.screen);S.screen=s;S.flipped=false;S.limits=false;S.addr=false;render();scrollTo(0,0)}
-function back(){hap();S.screen=S.stack.pop()||'home';S.addr=false;S.limits=false;render();scrollTo(0,0)}
+function go(s,extra){hap();if(extra)Object.assign(S,extra);if(TABS.includes(s))S.stack=[];else S.stack.push(S.screen==='onboarding'?'home':S.screen);S.pay=null;S.screen=s;S.flipped=false;S.limits=false;S.addr=false;render();scrollTo(0,0)}
+function back(){hap();if(S.pay){set({pay:null});return}S.screen=S.stack.pop()||'home';S.addr=false;S.limits=false;render();scrollTo(0,0)}
 function set(p){Object.assign(S,p);render()}
 function toast(t){const e=document.createElement('div');e.className='toast';e.textContent=t;document.body.appendChild(e);setTimeout(()=>e.remove(),1700)}
 const sp=n=>String(n).replace(/\B(?=(\d{3})+(?!\d))/g,' ');
@@ -126,10 +130,12 @@ const txRow=(t,onclick)=>`<button class="tx" onclick="${onclick||''}"><span clas
 
 /* ---------- данные ---------- */
 const CARDS=[
- {n:'Онлайн •• 4417',tag:'ONLINE',bal:'$84.20',last:'4417',bg:CARD,logoBg:'#fff',logoFg:A,spent:'$46.10',pct:38,
-  tx:[{m:'AI',n:'ChatGPT Plus',s:'Сегодня, 14:02',a:'−$20.00',r:'card'},{m:'!',n:'Midjourney',s:'Отказ: не хватило средств',a:'$30.00',bad:1},{m:'Sp',n:'Spotify',s:'15 ноя',a:'−$11.99'},{m:'+',n:'Пополнение карты',s:'С кошелька · 12 ноя',a:'+$100.00'}]},
- {n:'Wallet •• 9052',tag:'NFC · WALLET',bal:'$310.00',last:'9052',bg:'#16171C',logoBg:A,logoFg:'#fff',spent:'$128.40',pct:62,
-  tx:[{m:'Cf',n:'Кофейня, Тбилиси',s:'Apple Pay · вчера',a:'−$6.40'},{m:'Tx',n:'Такси',s:'Google Pay · 20 ноя',a:'−$9.80'},{m:'+',n:'Пополнение карты',s:'С кошелька · 19 ноя',a:'+$200.00'}]}];
+ {n:'Онлайн •• 4417',short:'Онлайн',tag:'ONLINE',bal:'$84.20',usd:84.2,last:'4417',bg:CARD,fg:'#fff',logoBg:'#fff',logoFg:A,spent:'$46.10',pct:38,
+  tx:[{m:'AI',n:'ChatGPT Plus',s:'Сегодня, 14:02',a:'−$20.00',r:'card'},{m:'!',n:'Midjourney',s:'Отказ: не хватило средств',a:'$30.00',bad:1},{m:'Sp',n:'Spotify',s:'15 ноя',a:'−$11.99'},{m:'+',n:'Пополнение карты',s:'СБП · 12 ноя',a:'+$100.00',r:'topup'}]},
+ {n:'Wallet •• 9052',short:'Wallet',tag:'NFC · WALLET',bal:'$310.00',usd:310,last:'9052',bg:'#16171C',fg:'#fff',logoBg:A,logoFg:'#fff',spent:'$128.40',pct:62,
+  tx:[{m:'Cf',n:'Кофейня, Тбилиси',s:'Apple Pay · вчера',a:'−$6.40'},{m:'Tx',n:'Такси',s:'Google Pay · 20 ноя',a:'−$9.80'},{m:'+',n:'Пополнение карты',s:'USDT TRC-20 · 19 ноя',a:'+$200.00',r:'topup',u:1}]},
+ {n:'Пластик •• 7731',short:'Пластик',tag:'PHYSICAL',bal:'$0.00',usd:0,last:'7731',bg:'linear-gradient(135deg,#DADDE3 0%,#A9AEB8 45%,#E7E9ED 70%,#9EA3AD 100%)',fg:'#16171B',logoBg:'#16171B',logoFg:'#fff',spent:'$0.00',pct:0,
+  tx:[{m:M,n:'Выпуск карты',s:'Доставка [срок]',a:'−[цена]',r:'card'}]}];
 const STORE=[
  {n:'Онлайн',tag:'ONLINE',title:'Онлайн-карта',sub:'Подписки, AI, игры, магазины',price:'[$5–10]',cta:'Выпустить за [$5–10]',bg:CARD,fg:'#fff',wm:'rgba(255,255,255,.08)',logoBg:'#fff',logoFg:A,sheen:.16,nfc:0,glow:A+'66',
   stats:[['Пополнение','[%]'],['Операция','[$]'],['Лимит / мес','[сумма]'],['Готова через','2 минуты']],feats:[['Онлайн-оплата и подписки',1],['3-D Secure, коды в боте',1],['Apple Pay · Google Pay',0],['Оплата в магазинах',0],['Пластик с доставкой',0]]},
@@ -141,15 +147,62 @@ const NETS=[{name:'TRC-20',chain:'Tron',m:'TRX',ibg:'#3A1518',ifg:'#FF6B73',eta:
 const CC={games:['#1B2838','#C7D5E0'],subs:['#2A1838','#E2A8FF'],apps:['#1E2A44','#8FB8FF'],ai:['#13302A','#74D7B8'],travel:['#123A2C','#7BE3B5'],gift:['#3A2A12','#F5C46B']};
 const SERVICES=[['St','Steam','Пополнение','Игры','games','steam'],['PS','PlayStation','Карты оплаты','Игры','games'],['Xb','Xbox','Game Pass','Игры','games'],['Ni','Nintendo','eShop','Игры','games'],['AS','App Store','Пополнение','Приложения','apps'],['GP','Google Play','Пополнение','Приложения','apps'],['Sp','Spotify','Premium','Подписки','subs'],['Nf','Netflix','Подписка','Подписки','subs'],['YT','YouTube','Premium','Подписки','subs'],['AI','ChatGPT','Plus','AI','ai'],['Cl','Claude','Pro','AI','ai'],['Mj','Midjourney','Подписка','AI','ai'],['eS','eSIM','150+ стран','Поездки','travel','esim'],['Ab','Airbnb','Подарочная','Поездки','travel'],['Am','Amazon','Подарочная','Подарки','gift'],['Dc','Discord','Nitro','Подписки','subs'],['Tw','Twitch','Подписка','Подписки','subs'],['Ep','Epic Games','Пополнение','Игры','games']];
 const SCOPES=[{n:'Страны',label:'ОДНА СТРАНА',list:[['TR','Турция','Местные операторы, 4G/5G'],['TH','Таиланд','Местные операторы, 4G/5G'],['AE','ОАЭ','Местные операторы, 4G/5G'],['GE','Грузия','Местные операторы, 4G'],['VN','Вьетнам','Местные операторы, 4G']]},{n:'Регионы',label:'НЕСКОЛЬКО СТРАН',list:[['EU','Европа','39 стран на одной eSIM'],['AS','Азия','14 стран на одной eSIM'],['ME','Ближний Восток','10 стран на одной eSIM']]},{n:'Весь мир',label:'ПО ВСЕМУ МИРУ',list:[['GL','Глобальная','120+ стран, одна eSIM на все поездки']]}];
-const HIST=[['СЕГОДНЯ','AI','ChatGPT Plus','Онлайн •• 4417 · 14:02','−$20.00','Карты','card'],['СЕГОДНЯ','!','Midjourney','Отказ: не хватило средств','$30.00','Карты','',1],['ВЧЕРА','₽','Пополнение по СБП','Кошелёк · 19:40','+5 000 ₽','Пополнения','topup'],['ВЧЕРА','Cf','Кофейня, Тбилиси','Wallet •• 9052 · Apple Pay','−$6.40','Карты','card'],['18 НОЯБРЯ','St','Steam','Пополнение аккаунта gaben','−1 200 ₽','Сервисы','steam'],['18 НОЯБРЯ','eS','eSIM · Турция','5 ГБ на 15 дней','−[цена]','Сервисы','esim'],['17 НОЯБРЯ','₮','Пополнение USDT','TRC-20','+50.00 USDT','Пополнения','topup'],['17 НОЯБРЯ',M,'Выпуск карты','Онлайн •• 4417','−[цена]','Карты','card']];
-const RECEIPTS={
- card:{head:'Карта выпущена',op:'ВЫПУСК КАРТЫ',id:'000184',total:'[цена]',rows:[['КАРТА','ОНЛАЙН •• 4417'],['ВАЛЮТА','USD'],['ВЫПУСК','[цена]'],['КОМИССИЯ','[$]'],['С БАЛАНСА','КОШЕЛЁК ₽']]},
- steam:{head:'Steam пополнен',op:'ПОПОЛНЕНИЕ STEAM',id:'000185',total:'1 000 ₽',rows:[['АККАУНТ','gaben'],['ЗАЧИСЛЕНО','1 000 ₽'],['КОМИССИЯ','[%]'],['СТАТУС','ДОСТАВЛЕНО']]},
- topup:{head:'Кошелёк пополнен',op:'ПОПОЛНЕНИЕ',id:'000186',total:'+5 000 ₽',rows:[['СПОСОБ','СБП'],['БАНК','[банк]'],['СУММА','5 000 ₽'],['КОМИССИЯ','[%]'],['ЗАЧИСЛЕНО ЗА','38 СЕК']]},
- esim:{head:'eSIM куплена',op:'ESIM',id:'000187',total:'[цена]',rows:[['СТРАНА','ТУРЦИЯ'],['ПАКЕТ','5 ГБ · 15 ДНЕЙ'],['СРОК','С ПОДКЛЮЧЕНИЯ'],['СТАТУС','ГОТОВА К УСТАНОВКЕ']]}};
+const HIST=[['СЕГОДНЯ','AI','ChatGPT Plus','Онлайн •• 4417 · 14:02','−$20.00','Покупки','card'],['СЕГОДНЯ','!','Midjourney','Отказ: не хватило средств','$30.00','Покупки','',1],['ВЧЕРА','+','Пополнение карты','Онлайн •• 4417 · СБП','+$100.00','Пополнения','topup'],['ВЧЕРА','Cf','Кофейня, Тбилиси','Wallet •• 9052 · Apple Pay','−$6.40','Покупки','card'],['18 НОЯБРЯ','St','Steam','Пополнение аккаунта gaben','−1 200 ₽','Сервисы','steam'],['18 НОЯБРЯ','eS','eSIM · Турция','5 ГБ на 15 дней','−[цена]','Сервисы','esim'],['17 НОЯБРЯ','+','Пополнение карты','Wallet •• 9052 · USDT TRC-20','+$200.00','Пополнения','topup_u'],['17 НОЯБРЯ',M,'Выпуск карты','Онлайн •• 4417 · СБП','−[цена]','Выпуск','card']];
+const EXPL={'TRC-20':'https://tronscan.org/#/transaction/','ERC-20':'https://etherscan.io/tx/','BEP-20':'https://bscscan.com/tx/','TON':'https://tonviewer.com/transaction/'};
+const FAKEHASH='4f9ac2e71b0d58a3f6c49e2d07b1a85c3e6f90d2a47b1c8e5f03d6a9b2c7e41f';
+function receiptData(){
+ const net=NETS[S.net].name,u=S.rm==='usdt',pay=u?'USDT · '+net:'СБП';
+ const c=CARDS[S.tcard]||CARDS[0];
+ if(S.rtype==='card')return{head:'Карта выпущена',op:'ВЫПУСК КАРТЫ',id:'000184',total:'[цена]',rows:[['КАРТА',c.n.toUpperCase()],['ВАЛЮТА','USD'],['ВЫПУСК','[цена]'],['ОПЛАТА',pay],['КОМИССИЯ','[%]']],tx:u};
+ if(S.rtype==='topup')return{head:'Карта пополнена',op:'ПОПОЛНЕНИЕ КАРТЫ',id:'000186',total:S.lastAmt||'5 000 ₽',rows:[['КАРТА',c.n.toUpperCase()],['ОПЛАТА',pay],['СУММА',S.lastAmt||'5 000 ₽'],['ЗАЧИСЛЕНО','≈ $[СУММА]'],['КОМИССИЯ','[%]']],tx:u};
+ if(S.rtype==='steam')return{head:'Steam пополнен',op:'ПОПОЛНЕНИЕ STEAM',id:'000185',total:'1 000 ₽',rows:[['АККАУНТ','gaben'],['ЗАЧИСЛЕНО','1 000 ₽'],['КОМИССИЯ','[%]'],['СТАТУС','ДОСТАВЛЕНО']]};
+ return{head:'eSIM куплена',op:'ESIM',id:'000187',total:'[цена]',rows:[['СТРАНА','ТУРЦИЯ'],['ПАКЕТ','5 ГБ · 15 ДНЕЙ'],['СРОК','С ПОДКЛЮЧЕНИЯ'],['СТАТУС','ГОТОВА К УСТАНОВКЕ']]};
+}
 
 /* ---------- экраны ---------- */
 const V={};
+const emptyCard=()=>`<div class="col" style="align-items:center;gap:18px;padding:6px 0 4px">
+ <button onclick="go('store')" aria-label="Выпустить карту" class="floaty" style="display:block;width:100%;max-width:340px">
+  <div class="cardf" style="width:100%;aspect-ratio:1.586;border-radius:24px;background:linear-gradient(140deg,${mix(A,'#FFFFFF',.12)} 0%,${A} 45%,${mix(A,'#0E0F13',.35)} 100%);box-shadow:0 30px 60px ${A}55,inset 0 1px 0 rgba(255,255,255,.25);text-align:left">
+   <div class="wm" style="right:-24px;bottom:-70px;font-size:250px;color:rgba(255,255,255,.1)">${M[0]}</div>
+   <div class="shim" style="position:absolute;top:0;bottom:0;left:0;width:50%;background:linear-gradient(105deg,rgba(255,255,255,0),rgba(255,255,255,.28) 50%,rgba(255,255,255,0))"></div>
+   <div class="row" style="position:absolute;left:20px;top:20px;gap:8px"><div class="u" style="width:30px;height:30px;border-radius:9px;background:#fff;color:${A};font-weight:800;font-size:14px;display:flex;align-items:center;justify-content:center">${M}</div><span style="font-weight:800;font-size:15px">${BRAND.name}</span></div>
+   <div class="chipg" style="left:20px;top:44%;width:38px;height:28px"></div>
+   <div class="row" style="position:absolute;left:20px;right:20px;bottom:18px;justify-content:space-between"><span class="u" style="font-weight:600;font-size:18px">Выпустить карту</span><span style="width:36px;height:36px;border-radius:18px;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center">${sv(I.plus,18,2.4)}</span></div>
+  </div></button>
+ <span class="mu" style="font-size:14px;text-align:center;max-width:290px;line-height:1.5">У вас пока нет карты. Нажмите на неё — выпуск занимает 2 минуты, оплата рублями или USDT.</span>
+</div>`;
+function openPay(kind){hap();S.pay={kind,step:kind==='card'?'method':'invoice'};if(kind==='topup')S.pm=S.m==='rub'?'sbp':'usdt';render()}
+function finishPay(){ok();const k=S.pay.kind;S.rm=S.pm;if(k==='card'){if(!S.mine.includes(S.st))S.mine.push(S.st);S.tcard=S.st;S.card=S.st;S.lastAmt='[цена]'}else{S.lastAmt=amtLabel()}S.pay=null;go('receipt',{rtype:k==='card'?'card':'topup'})}
+function paySheet(){
+ const P=S.pay;if(!P)return'';
+ const isCard=P.kind==='card',sc=STORE[S.st],c=CARDS[S.tcard]||CARDS[0],net=NETS[S.net],u=S.pm==='usdt';
+ const what=isCard?`Выпуск: ${sc.title}`:`Пополнение: ${c.n}`;
+ const amount=isCard?(u?'[сумма] USDT':'[сумма] ₽'):amtLabel();
+ let body='';
+ if(P.step==='method'){
+  body=`<span class="u" style="font-weight:600;font-size:18px">Как оплатить?</span><span class="mu" style="font-size:13px;margin-top:-8px">${what} · ${sc.price}</span>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">${[['sbp','₽','Рубли','СБП, счёт в банк'],['usdt','₮','USDT','Перевод в крипте']].map(m=>`<button class="col" style="align-items:flex-start;gap:10px;padding:14px;border-radius:18px;background:var(--s2);text-align:left;border:2px solid ${S.pm===m[0]?A:'transparent'}" onclick="hap();S.pm='${m[0]}';render()"><span class="u" style="width:36px;height:36px;border-radius:12px;background:var(--s3);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:17px">${m[1]}</span><span class="col" style="gap:2px"><span style="font-size:15px;font-weight:800">${m[2]}</span><span class="mu" style="font-size:12px">${m[3]}</span></span></button>`).join('')}</div>
+  ${u?`<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">${NETS.map((n,k)=>`<button class="row" style="gap:10px;padding:9px 12px;border-radius:14px;text-align:left;border:1.5px solid ${k===S.net?A:'transparent'};background:${k===S.net?A+'1F':'var(--s2)'}" onclick="hap();S.net=${k};render()"><span style="width:30px;height:30px;border-radius:10px;background:${n.ibg};color:${n.ifg};display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;flex-shrink:0">${n.m}</span><span class="col"><span style="font-size:13px;font-weight:800">${n.name}</span><span class="mu" style="font-size:11px">${n.chain}</span></span></button>`).join('')}</div>`:''}
+  <button class="cta" style="height:52px;font-size:15px" onclick="hap();S.pay.step='invoice';render()">Выставить счёт</button>`;
+ }else if(!u){
+  body=`<div class="row between"><span class="u" style="font-weight:600;font-size:18px">Счёт на оплату</span><span class="chip" style="height:26px;background:var(--abg);color:var(--soft)">СБП</span></div>
+  <div class="col" style="border-radius:16px;background:#1C1D23;padding:2px 14px">${[['Что оплачиваем',what],['Сумма',amount],['Получатель','[получатель]'],['Счёт действует','15 минут']].map((r,k,a)=>`<div class="row between" style="padding:12px 0;gap:12px;font-size:14px;${k<a.length-1?'border-bottom:1px solid var(--line)':''}"><span class="mu">${r[0]}</span><b style="text-align:right">${r[1]}</b></div>`).join('')}</div>
+  <div class="note">${sv(I.info,18)}<span>Откроется приложение вашего банка с уже заполненным переводом по СБП. Платите со своего счёта.</span></div>
+  <div class="row" style="gap:10px;font-size:13px;color:#C9CBD3"><span class="pulse" style="width:10px;height:10px;border-radius:5px;background:var(--ok)"></span>Ждём оплату · обычно до минуты</div>
+  <button class="cta" style="height:52px;font-size:15px" onclick="toast('Откроем банк — демо');setTimeout(finishPay,900)">Оплатить по СБП</button>`;
+ }else{
+  body=`<div class="row between"><span class="u" style="font-weight:600;font-size:17px">Переведите ${amount}</span><span class="chip" style="height:26px;background:var(--abg);color:var(--soft)">${net.name}</span></div>
+  <span class="mu" style="font-size:13px;margin-top:-8px">${what}</span>
+  <div class="row" style="gap:14px"><div role="img" aria-label="QR-код адреса" style="width:126px;height:126px;flex-shrink:0;border-radius:14px;background:#fff;padding:9px;display:grid;grid-template-columns:repeat(21,1fr)">${qr(S.net+3).map(c=>`<span style="background:${c}"></span>`).join('')}</div>
+   <div class="col" style="gap:8px;min-width:0"><span class="mu" style="font-size:12px">Адрес для оплаты</span><span class="mono" style="font-size:13px;font-weight:700;line-height:1.4;word-break:break-all">${net.addr}</span><button style="align-self:flex-start;height:34px;padding:0 12px;border-radius:11px;background:var(--s3);font-size:13px;font-weight:800" onclick="toast('Адрес скопирован')">Скопировать адрес</button></div></div>
+  <div class="note warn">${sv(I.alert,18,2)}<span>Только USDT и только в сети ${net.name}. Другая монета или сеть — деньги могут потеряться. Счёт действует 30 минут.</span></div>
+  <div class="row" style="gap:10px;font-size:13px;color:#C9CBD3"><span class="pulse" style="width:10px;height:10px;border-radius:5px;background:var(--ok)"></span>Ждём перевод · обычно ${net.eta}</div>
+  <button class="cta" style="height:52px;font-size:15px" onclick="finishPay()">Я перевёл</button>`;
+ }
+ return `<div class="sheetWrap"><div class="sheetBg" onclick="set({pay:null})"></div><div class="sheet"><span class="grab"></span>${body}</div></div>`;
+}
+
 
 V.onboarding=()=>`<div class="ob col" style="min-height:100vh;position:relative;overflow:hidden">
  <div class="glowA" aria-hidden="true" style="position:absolute;left:50%;top:150px;width:400px;height:400px;margin-left:-200px;border-radius:200px;background:${A}70;filter:blur(80px)"></div>
@@ -164,35 +217,42 @@ V.onboarding=()=>`<div class="ob col" style="min-height:100vh;position:relative;
   </div>
  </div>
  <div class="f3 col" style="position:relative;padding:0 24px 6px;gap:10px"><span class="u" style="font-weight:600;font-size:26px;line-height:1.2">Карта за 2 минуты прямо в Telegram</span><span style="font-size:15px;line-height:1.5;color:var(--mu)">Подписки, Apple Pay и Google Pay, пластик. Пополняй рублями или криптой.</span></div>
- <div class="f4 col" style="position:relative;padding:14px 16px calc(24px + env(safe-area-inset-bottom));gap:6px"><button class="cta" onclick="store.set('aboba_seen','1');go('store')">Выбрать карту</button><button style="height:44px;font-size:14px;font-weight:800;color:var(--mu)" onclick="store.set('aboba_seen','1');go('home')">Сначала осмотреться</button></div>
+ <div class="f4 col" style="position:relative;padding:14px 16px calc(24px + env(safe-area-inset-bottom));gap:6px"><button class="cta" onclick="store.set('aboba_seen','1');hap();S.stack=['home'];S.screen='store';render();scrollTo(0,0)">Выбрать карту</button><button style="height:44px;font-size:14px;font-weight:800;color:var(--mu)" onclick="store.set('aboba_seen','1');go('home')">Сначала осмотреться</button></div>
 </div>`;
 
 V.home=()=>{
- const rub=S.cur==='rub';
- const parts=[{n:'Кошелёк, рубли',v:12480,nat:'12 480 ₽',c:A,to:"go('topup')"},{n:'Кошелёк, USDT',v:50*R,nat:'50.00 USDT',c:mix(A,'#FFFFFF',.55),to:"go('topup',{m:'usdt'})"},{n:'Онлайн •• 4417',v:84.2*R,nat:'$84.20 на карте',c:'#3DDC97',to:"go('card',{card:0})"},{n:'Wallet •• 9052',v:310*R,nat:'$310.00 на карте',c:'#E9EAEE',to:"go('card',{card:1})"}];
- const tot=parts.reduce((s,p)=>s+p.v,0);
- return `<div class="row between"><div class="row" style="gap:10px"><div class="u" style="width:34px;height:34px;border-radius:11px;background:var(--accent);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:15px;color:#fff">${M}</div><span style="font-weight:800;font-size:16px">${BRAND.name}</span></div>${curToggle()}</div>
- <div class="box col" style="position:relative;overflow:hidden;border-radius:26px;padding:20px;gap:16px">
-  <div class="wm" style="right:-30px;top:-56px;font-size:230px;color:${A}22">${M[0]}</div>
-  <div class="col" style="position:relative;gap:4px"><span class="mu" style="font-size:13px">Всего денег</span><span class="u" style="font-weight:600;font-size:38px;letter-spacing:-1px;line-height:1.1">${rub?fr(tot):fd(tot/R)}</span><span class="mu" style="font-size:13px">≈ ${rub?fd(tot/R):fr(tot)}</span></div>
-  <div class="row seg-bar" style="position:relative;gap:3px;height:12px;border-radius:6px;overflow:hidden">${parts.map(p=>`<span style="flex-grow:${Math.round(p.v)};flex-basis:0;height:100%;background:${p.c}"></span>`).join('')}</div>
-  <div class="col" style="position:relative;gap:10px">${parts.map(p=>`<button class="row" style="gap:10px;text-align:left" onclick="${p.to}"><span style="width:10px;height:10px;border-radius:3px;background:${p.c};flex-shrink:0"></span><span style="flex:1;font-size:14px;font-weight:600;color:#C9CBD3">${p.n}</span><span class="col" style="align-items:flex-end"><span style="font-size:14px;font-weight:800">${rub?fr(p.v):fd(p.v/R)}</span><span style="font-size:11px;color:#8E909A">${p.nat}</span></span></button>`).join('')}</div>
-  <span style="position:relative;font-size:11px;color:#8E909A">Курс для примера: 1 $ = 92 ₽, 1 USDT ≈ 1 $</span>
- </div>
- <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><button class="cta" style="height:52px;font-size:15px;gap:8px" onclick="go('topup')">${sv(I.plus,20,2.2)}Пополнить</button><button class="btn2" style="height:52px;font-size:15px;gap:8px" onclick="go('store')">${sv(I.card,20)}Новая карта</button></div>
- <div class="col" style="gap:2px"><div class="row between" style="padding-bottom:6px"><span class="h2">Последние операции</span><button style="font-size:14px;font-weight:800;color:var(--soft)" onclick="go('history')">Все</button></div>
-  ${[{m:'AI',n:'ChatGPT Plus',s:'Онлайн •• 4417 · сегодня',a:'−$20.00',r:'card'},{m:'₽',n:'Пополнение по СБП',s:'Кошелёк · вчера',a:'+5 000 ₽',r:'topup'},{m:'St',n:'Steam',s:'18 ноя',a:'−1 200 ₽',r:'steam'}].map(t=>txRow(t,`go('receipt',{rtype:'${t.r}'})`)).join('')}
+ const mine=S.mine.map(i=>({...CARDS[i],i}));
+ const head=`<div class="row between"><div class="row" style="gap:10px"><div class="u" style="width:34px;height:34px;border-radius:11px;background:var(--accent);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:15px;color:#fff">${M}</div><span style="font-weight:800;font-size:16px">${BRAND.name}</span></div>${mine.length?curToggle():''}</div>`;
+ if(!mine.length)return head+emptyCard()+`<div class="box list">${[['Онлайн-карта','Подписки, AI, игры · от [$5–10]'],['Карта для телефона','Apple Pay и Google Pay · [цена]'],['Пластик','С доставкой · [цена]']].map(r=>`<button class="li" style="width:100%;text-align:left" onclick="go('store',{st:${['Онлайн-карта','Карта для телефона','Пластик'].indexOf(r[0])}})"><span class="col" style="gap:2px"><b style="font-size:15px">${r[0]}</b><span class="mu" style="font-size:12px">${r[1]}</span></span><span class="mu">${sv(I.right,18,2)}</span></button>`).join('')}</div>`;
+ const usd=S.cur==='usd',tot=mine.reduce((a,c)=>a+c.usd,0);
+ const money=v=>usd?fd(v):fr(v*R);
+ const all=[];mine.forEach(c=>c.tx.forEach(t=>all.push({...t,ci:c.i,cn:c.short})));
+ const list=(S.hcard<0?all:all.filter(t=>t.ci===S.hcard)).slice(0,6);
+ return head+`<div class="col" style="gap:4px"><span class="mu" style="font-size:13px">Всего на картах</span><span class="u" style="font-weight:600;font-size:38px;letter-spacing:-1px;line-height:1.1">${money(tot)}</span><span class="mu" style="font-size:13px">≈ ${usd?fr(tot*R):fd(tot)} · курс для примера 1 $ = 92 ₽</span></div>
+ <div class="hs" style="gap:10px;scroll-snap-type:x mandatory">${mine.map(c=>`<button onclick="go('card',{card:${c.i}})" class="cardf" style="flex-shrink:0;width:236px;height:148px;border-radius:20px;background:${c.bg};color:${c.fg};text-align:left;scroll-snap-align:start;box-shadow:0 14px 30px rgba(0,0,0,.35)">
+   <div class="wm" style="right:-18px;bottom:-56px;font-size:190px;color:${c.fg==='#fff'?'rgba(255,255,255,.08)':'rgba(0,0,0,.07)'}">${M[0]}</div>
+   <div class="u" style="position:absolute;left:14px;top:14px;width:26px;height:26px;border-radius:8px;background:${c.logoBg};color:${c.logoFg};font-weight:800;font-size:12px;display:flex;align-items:center;justify-content:center">${M}</div>
+   <span style="position:absolute;right:14px;top:18px;font-size:10px;font-weight:800;letter-spacing:1px;opacity:.85">${c.tag}</span>
+   <span class="u" style="position:absolute;left:14px;bottom:38px;font-weight:600;font-size:24px">${money(c.usd)}</span>
+   <span class="mono" style="position:absolute;left:14px;bottom:14px;font-size:12px;font-weight:700;letter-spacing:1px;opacity:.8">${c.short} •• ${c.last}</span></button>`).join('')}
+  <button onclick="go('store')" style="flex-shrink:0;width:120px;height:148px;border-radius:20px;border:1.5px dashed #34363F;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;color:#C9CBD3;font-size:13px;font-weight:800;scroll-snap-align:start"><span style="width:40px;height:40px;border-radius:13px;background:var(--s2);display:flex;align-items:center;justify-content:center">${sv(I.plus,20,2)}</span>Новая карта</button></div>
+ <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><button class="cta" style="height:52px;font-size:15px;gap:8px" onclick="go('topup',{tcard:${mine[0].i}})">${sv(I.plus,20,2.2)}Пополнить карту</button><button class="btn2" style="height:52px;font-size:15px;gap:8px" onclick="go('store')">${sv(I.card,20)}Новая карта</button></div>
+ <div class="col" style="gap:2px"><div class="row between" style="padding-bottom:8px"><span class="h2">Операции</span><button style="font-size:14px;font-weight:800;color:var(--soft)" onclick="go('history')">Все</button></div>
+  ${mine.length>1?`<div class="hs" style="margin-bottom:6px"><button class="pill ${S.hcard<0?'on':''}" onclick="hap();set({hcard:-1})">Все карты</button>${mine.map(c=>`<button class="pill ${S.hcard===c.i?'on':''}" onclick="hap();set({hcard:${c.i}})">${c.short} •• ${c.last}</button>`).join('')}</div>`:''}
+  ${list.map(t=>txRow({...t,s:t.cn+' · '+t.s},t.r?`go('receipt',{rtype:'${t.r}',tcard:${t.ci},rm:'${t.u?'usdt':'sbp'}'})`:'')).join('')}
  </div>`;
 };
 
 V.card=()=>{
+ if(!S.mine.length)return `<span class="h1">Мои карты</span>`+emptyCard();
+ if(!S.mine.includes(S.card))S.card=S.mine[0];
  const c=CARDS[S.card],fz=S.frozen[S.card];
  return `<div class="row between"><span class="h1">Мои карты</span><button class="row" style="height:40px;padding:0 14px;border-radius:13px;background:var(--s1);gap:6px;font-size:14px;font-weight:800" onclick="go('store')">${sv(I.plus,16,2.4)}Новая</button></div>
- <div class="hs">${CARDS.map((x,k)=>`<button class="pill ${k===S.card?'on':''}" onclick="hap();set({card:${k},flipped:false})">${x.n}</button>`).join('')}<button class="pill" style="background:none;border:1.5px dashed #34363F;color:var(--mu)" onclick="go('store',{st:2})">+ Пластик</button></div>
+ <div class="hs">${S.mine.map(k=>`<button class="pill ${k===S.card?'on':''}" onclick="hap();set({card:${k},flipped:false})">${CARDS[k].n}</button>`).join('')}${S.mine.includes(2)?'':`<button class="pill" style="background:none;border:1.5px dashed #34363F;color:var(--mu)" onclick="go('store',{st:2})">+ Пластик</button>`}</div>
  <div style="display:flex;justify-content:center"><button aria-label="Перевернуть карту" onclick="hap();set({flipped:!S.flipped})" style="display:block;width:272px;height:430px;perspective:1400px">
   <div class="flip" style="transform:${S.flipped?'rotateY(180deg)':'none'}">
-   <div class="face cardf" style="border-radius:28px;background:${c.bg};box-shadow:0 30px 60px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.18);text-align:left">
-    <div class="wm" style="left:-46px;bottom:-84px;font-size:380px;color:rgba(255,255,255,.07)">${M[0]}</div>
+   <div class="face cardf" style="border-radius:28px;background:${c.bg};color:${c.fg};box-shadow:0 30px 60px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.18);text-align:left">
+    <div class="wm" style="left:-46px;bottom:-84px;font-size:380px;color:${c.fg==='#fff'?'rgba(255,255,255,.07)':'rgba(0,0,0,.07)'}">${M[0]}</div>
     <div class="row" style="position:absolute;left:22px;top:22px;gap:8px"><div class="u" style="width:34px;height:34px;border-radius:10px;background:${c.logoBg};color:${c.logoFg};font-weight:800;font-size:16px;display:flex;align-items:center;justify-content:center">${M}</div><span style="font-weight:800;font-size:15px">${BRAND.name}</span></div>
     <span style="position:absolute;right:22px;top:32px;font-size:11px;font-weight:800;letter-spacing:1px;opacity:.85">${c.tag}</span>
     <div class="chipg" style="right:22px;top:96px;width:32px;height:42px"></div>
@@ -212,10 +272,10 @@ V.card=()=>{
    </div>
   </div></button></div>
  <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px">
-  ${[['go(\'topup\')',I.plus,'Пополнить',true],['hap();set({flipped:!S.flipped})',I.eye,S.flipped?'Скрыть':'Реквизиты'],[`hap('medium');S.frozen[S.card]=!S.frozen[S.card];set({flipped:false})`,I.snow,fz?'Разморозить':'Заморозить',false,fz],['hap();set({limits:true})',I.sliders,'Лимиты']].map(([on,ic,l,pri,act])=>`<button class="col" style="align-items:center;gap:8px;font-size:12px;font-weight:700" onclick="${on}"><span style="width:54px;height:54px;border-radius:18px;display:flex;align-items:center;justify-content:center;${pri?'background:var(--accent);color:#fff':act?'background:#1B2E40;color:#BFE3FF':'background:var(--s2)'}">${sv(ic)}</span>${l}</button>`).join('')}
+  ${[[`go('topup',{tcard:${S.card}})`,I.plus,'Пополнить',true],['hap();set({flipped:!S.flipped})',I.eye,S.flipped?'Скрыть':'Реквизиты'],[`hap('medium');S.frozen[S.card]=!S.frozen[S.card];set({flipped:false})`,I.snow,fz?'Разморозить':'Заморозить',false,fz],['hap();set({limits:true})',I.sliders,'Лимиты']].map(([on,ic,l,pri,act])=>`<button class="col" style="align-items:center;gap:8px;font-size:12px;font-weight:700" onclick="${on}"><span style="width:54px;height:54px;border-radius:18px;display:flex;align-items:center;justify-content:center;${pri?'background:var(--accent);color:#fff':act?'background:#1B2E40;color:#BFE3FF':'background:var(--s2)'}">${sv(ic)}</span>${l}</button>`).join('')}
  </div>
  ${S.card===1?`<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><button class="btn2" style="background:var(--tx);color:var(--bg)" onclick="toast('Привязка к Apple Wallet — демо')">В Apple Wallet</button><button class="btn2" style="background:var(--tx);color:var(--bg)" onclick="toast('Привязка к Google Pay — демо')">В Google Pay</button></div>`:''}
- <div class="col" style="gap:2px"><div class="row between" style="padding-bottom:6px"><span class="h2">Операции по карте</span><button style="font-size:14px;font-weight:800;color:var(--soft)" onclick="go('history')">Все</button></div>${c.tx.map(t=>txRow(t,t.bad?'':`go('receipt',{rtype:'card'})`)).join('')}</div>
+ <div class="col" style="gap:2px"><div class="row between" style="padding-bottom:6px"><span class="h2">Операции по карте</span><button style="font-size:14px;font-weight:800;color:var(--soft)" onclick="go('history')">Все</button></div>${c.tx.map(t=>txRow(t,t.r?`go('receipt',{rtype:'${t.r}',tcard:${S.card},rm:'${t.u?'usdt':'sbp'}'})`:'')).join('')}</div>
  ${S.limits?`<div class="sheetWrap"><div class="sheetBg" onclick="set({limits:false})"></div><div class="sheet"><span class="grab"></span><span class="u" style="font-weight:600;font-size:18px">Лимиты карты</span>
   <div class="col" style="gap:8px;padding:14px;border-radius:16px;background:#1C1D23"><div class="row between" style="font-size:13px"><span class="mu">Потрачено в ноябре</span><span style="font-weight:800">${c.spent} из [лимит]</span></div><div style="height:8px;border-radius:4px;background:var(--line);overflow:hidden"><div style="width:${c.pct}%;height:100%;border-radius:4px;background:var(--accent)"></div></div></div>
   <div class="col" style="border-radius:16px;background:#1C1D23;padding:2px 14px"><div class="li" style="border-color:var(--line)"><span class="mu">За одну покупку</span><b>[сумма]</b></div><div class="li" style="border-color:var(--line)"><span class="mu">Пополнение карты в месяц</span><b>[сумма]</b></div><div class="li"><span class="mu">С подпиской Plus</span><b style="color:var(--soft)">выше в [N] раз</b></div></div>
@@ -248,7 +308,7 @@ V.store=()=>{
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">${c.stats.map(s=>`<div class="col" style="padding:12px 14px;border-radius:16px;background:#15161B;gap:3px"><span class="mu" style="font-size:12px">${s[0]}</span><span style="font-size:16px;font-weight:800">${s[1]}</span></div>`).join('')}</div>
   <div class="col" style="border-radius:18px;background:#15161B;padding:4px 14px">${c.feats.map(f=>`<div class="li"><span class="row" style="gap:12px"><span style="width:24px;height:24px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;${f[1]?'background:#1B3A2B;color:var(--ok)':'background:var(--s3);color:#6B6E78'}">${f[1]?'✓':'–'}</span><span style="font-size:14px;font-weight:600;color:${f[1]?'var(--tx)':'#7C7F89'}">${f[0]}</span></span></div>`).join('')}</div>
  </div>
- <div class="bottom"><button class="cta" onclick="ok();go('receipt',{rtype:'card'})">${c.cta}</button></div>`;
+ <div class="bottom"><button class="cta" onclick="openPay('card')">${c.cta}</button></div>`;
 };
 function spin(d){hap();S.st=(S.st+d+3)%3;S.spin-=d*360;render();requestAnimationFrame(()=>requestAnimationFrame(()=>{const cd=document.getElementById('scard');if(cd){cd.style.transition='transform .9s cubic-bezier(.2,.8,.2,1)';cd.style.transform=`rotateY(${S.spin}deg)`}S.spinShown=S.spin}))}
 function spinTo(k){if(k===S.st)return;spin(((k-S.st+3)%3)===1?1:-1)}
@@ -259,11 +319,14 @@ function setAmt(v){const c=TOP();S[c.key]=Math.max(c.min,Math.min(c.max,Math.rou
 function amtLabel(){return S.m==='rub'?sp(S.rub)+' ₽':sp(S.usdt)+' USDT'}
 function updRuler(){const c=TOP(),a=S[c.key];const off=Math.round(-(a/c.step)*12)%60;const el=document.getElementById('ticks');if(!el)return;el.style.backgroundPosition=`${off}px 0, ${off}px 8px`;document.getElementById('amt').textContent=amtLabel();document.getElementById('lo').textContent=sp(Math.max(c.min,a-c.step*12));document.getElementById('hi').textContent=sp(Math.min(c.max,a+c.step*12));const ctab=document.getElementById('ctaAmt');if(ctab)ctab.textContent=amtLabel();document.querySelectorAll('[data-preset]').forEach(b=>b.classList.toggle('on',+b.dataset.preset===a))}
 V.topup=()=>{
+ if(!S.mine.length)return backBar('Пополнение')+`<div class="note">${sv(I.info,18)}<span>Пополнить можно только выпущенную карту. Сначала выпустите карту.</span></div>`+emptyCard();
+ if(!S.mine.includes(S.tcard))S.tcard=S.mine[0];
  const rub=S.m==='rub',c=TOP(),net=NETS[S.net];
- return `${backBar('Пополнение')}
+ return `${backBar('Пополнение карты')}
+ <div class="col" style="gap:8px"><span class="mu" style="font-size:13px;font-weight:800">На какую карту</span><div class="hs">${S.mine.map(k=>`<button class="pill ${k===S.tcard?'on':''}" style="height:40px" onclick="hap();set({tcard:${k}})">${CARDS[k].short} •• ${CARDS[k].last} · ${CARDS[k].bal}</button>`).join('')}</div></div>
  <div class="seg"><button class="${rub?'on':''}" onclick="hap();set({m:'rub'})">Рубли · СБП</button><button class="${rub?'':'on'}" onclick="hap();set({m:'usdt'})">USDT</button></div>
  ${rub?'':`<div class="col" style="gap:8px"><span class="mu" style="font-size:13px;font-weight:800">Сеть перевода</span><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">${NETS.map((n,k)=>`<button class="row" style="gap:10px;padding:10px 12px;border-radius:14px;text-align:left;border:1.5px solid ${k===S.net?A:'transparent'};background:${k===S.net?A+'1F':'var(--s1)'}" onclick="hap();set({net:${k}})"><span style="width:32px;height:32px;border-radius:10px;background:${n.ibg};color:${n.ifg};display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;flex-shrink:0">${n.m}</span><span class="col" style="gap:1px"><span style="font-size:14px;font-weight:800">${n.name}</span><span class="mu" style="font-size:11px">${n.chain}</span></span></button>`).join('')}</div></div>`}
- <div class="col" style="align-items:center;gap:6px;padding-top:6px"><span class="mu" style="font-size:13px">Сколько пополняем</span><span id="amt" class="u" style="font-weight:600;font-size:48px;letter-spacing:-1.5px;line-height:1">${amtLabel()}</span><span class="mu" style="font-size:13px">${rub?'Со своего счёта через СБП':'Сеть '+net.name+' · '+net.chain}</span></div>
+ <div class="col" style="align-items:center;gap:6px;padding-top:6px"><span class="mu" style="font-size:13px">Сколько пополняем</span><span id="amt" class="u" style="font-weight:600;font-size:48px;letter-spacing:-1.5px;line-height:1">${amtLabel()}</span><span class="mu" style="font-size:13px">${rub?'Счёт по СБП со своего счёта':'Сеть '+net.name+' · '+net.chain}</span></div>
  <div class="row" style="gap:10px">
   <button aria-label="Меньше" onclick="hap();setAmt(S[TOP().key]-TOP().step)" style="width:44px;height:44px;border-radius:22px;background:var(--s1);flex-shrink:0;display:flex;align-items:center;justify-content:center">${sv(I.minus,18,2.4)}</button>
   <div id="ruler" role="slider" aria-label="Сумма" tabindex="0" style="position:relative;flex:1;height:82px;border-radius:18px;background:#15161B;overflow:hidden;touch-action:none;cursor:ew-resize;user-select:none">
@@ -275,15 +338,8 @@ V.topup=()=>{
   <button aria-label="Больше" onclick="hap();setAmt(S[TOP().key]+TOP().step)" style="width:44px;height:44px;border-radius:22px;background:var(--s1);flex-shrink:0;display:flex;align-items:center;justify-content:center">${sv(I.plus,18,2.4)}</button>
  </div>
  <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px">${c.presets.map(v=>`<button data-preset="${v}" class="pill" style="height:40px;padding:0;border-radius:13px" onclick="hap();setAmt(${v})">${rub?(v/1000)+'K ₽':v+' ₮'}</button>`).join('')}</div>
- <div class="box list">${(rub?[['Способ','СБП, со своего счёта'],['Комиссия','[%]']]:[['Курс','1 USDT = [курс] ₽'],['Комиссия','[%]']]).map(r=>`<div class="li"><span class="mu">${r[0]}</span><b>${r[1]}</b></div>`).join('')}<div class="li"><b style="font-size:15px">К зачислению</b><span class="u" style="font-weight:600;color:var(--ok)">[сумма]</span></div></div>
- <div class="bottom">${rub?`<button class="cta" onclick="ok();go('receipt',{rtype:'topup'})">Пополнить <span id="ctaAmt" style="margin-left:6px">${amtLabel()}</span></button>`:`<button class="cta" onclick="hap();set({addr:true})">Получить адрес для перевода</button>`}</div>
- ${S.addr?`<div class="sheetWrap"><div class="sheetBg" onclick="set({addr:false})"></div><div class="sheet"><span class="grab"></span>
-  <div class="row between"><span class="u" style="font-weight:600;font-size:17px">Переведите ${amtLabel()}</span><span class="chip" style="height:26px;background:var(--abg);color:var(--soft)">${net.name}</span></div>
-  <div class="row" style="gap:14px"><div role="img" aria-label="QR-код адреса" style="width:126px;height:126px;flex-shrink:0;border-radius:14px;background:#fff;padding:9px;display:grid;grid-template-columns:repeat(21,1fr)">${qr(S.net+3).map(c=>`<span style="background:${c}"></span>`).join('')}</div>
-   <div class="col" style="gap:8px;min-width:0"><span class="mu" style="font-size:12px">Адрес кошелька</span><span class="mono" style="font-size:13px;font-weight:700;line-height:1.4;word-break:break-all">${net.addr}</span><button style="align-self:flex-start;height:34px;padding:0 12px;border-radius:11px;background:var(--s3);font-size:13px;font-weight:800" onclick="toast('Адрес скопирован')">Скопировать адрес</button></div></div>
-  <div class="note warn">${sv(I.alert,18,2)}<span>Только USDT и только в сети ${net.name}. Другая монета или сеть — деньги могут потеряться. Минимум [сумма] USDT.</span></div>
-  <div class="row" style="gap:10px;font-size:13px;color:#C9CBD3"><span class="pulse" style="width:10px;height:10px;border-radius:5px;background:var(--ok)"></span>Ждём перевод · обычно ${net.eta}</div>
-  <button class="cta" style="height:52px;font-size:15px" onclick="ok();go('receipt',{rtype:'topup'})">Я перевёл</button></div></div>`:''}`;
+ <div class="box list">${(rub?[['Оплата','Счёт по СБП'],['Курс','1 $ = [курс] ₽'],['Комиссия','[%]']]:[['Оплата','Перевод USDT'],['Курс','1 USDT = [курс] $'],['Комиссия','[%]']]).map(r=>`<div class="li"><span class="mu">${r[0]}</span><b>${r[1]}</b></div>`).join('')}<div class="li"><b style="font-size:15px">Зачислим на карту</b><span class="u" style="font-weight:600;color:var(--ok)">≈ $[сумма]</span></div></div>
+ <div class="bottom"><button class="cta" onclick="openPay('topup')">Выставить счёт · <span id="ctaAmt" style="margin-left:6px">${amtLabel()}</span></button></div>`;
 };
 
 V.catalog=()=>{
@@ -342,7 +398,7 @@ V.esim=()=>{
 };
 
 V.receipt=()=>{
- const t=RECEIPTS[S.rtype]||RECEIPTS.card;
+ const t=receiptData(),netn=NETS[S.net].name;
  const zig='M0 0h312v2'+'l-6 10-6-10'.repeat(26)+'z';
  const now=new Date();const dt=now.toLocaleDateString('ru-RU')+' '+now.toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'});
  return `<div class="col" style="align-items:center;gap:10px;padding-top:10px"><span style="width:56px;height:56px;border-radius:28px;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center">${sv(I.check,28,2.6)}</span><span class="u" style="font-weight:600;font-size:22px">${t.head}</span></div>
@@ -357,13 +413,15 @@ V.receipt=()=>{
     <div class="row between" style="align-items:baseline"><span style="font-size:12px;font-weight:800;letter-spacing:1px">ИТОГО</span><span class="u" style="font-weight:800;font-size:24px">${t.total}</span></div>
     <div class="row between" style="margin-top:4px"><svg width="150" height="34" viewBox="0 0 150 34" aria-hidden="true"><g fill="#1B1A17">${[0,5,9,13,20,24,29,34,38,45,50,54,60,65,72,76,81,87,91,98,103,107,113,118,125,129,135,140,144].map((x,i)=>`<rect x="${x}" width="${[3,1,2,4][i%4]}" height="34"/>`).join('')}</g></svg>
      <div class="col" style="transform:rotate(-10deg);border:2.5px solid ${mix(A,'#1B1A17',.15)};color:${mix(A,'#1B1A17',.15)};border-radius:9px;padding:4px 8px;align-items:center"><span style="font-size:9px;font-weight:800;letter-spacing:1px">ОПЛАЧЕНО</span><span class="u" style="font-weight:700;font-size:13px">${M}</span></div></div>
+    ${t.tx?`<div style="border-top:1.5px dashed #B9B3A6"></div><div class="col" style="gap:4px;font-size:11px"><span style="font-weight:800;letter-spacing:1px">ТРАНЗАКЦИЯ · ${netn}</span><button onclick="openTx()" style="text-align:left;font-family:inherit;font-size:11px;font-weight:700;color:${mix(A,'#1B1A17',.15)};text-decoration:underline;word-break:break-all">${FAKEHASH.slice(0,18)}…${FAKEHASH.slice(-10)} ↗</button></div>`:''}
     <svg width="100%" height="12" viewBox="0 0 312 12" preserveAspectRatio="none" aria-hidden="true" style="position:absolute;left:0;bottom:-11px"><path fill="#FBFAF6" d="${zig}"/></svg>
    </div></div>
   <button style="align-self:center;margin-top:8px;height:34px;padding:0 14px;border-radius:17px;font-size:12px;font-weight:800;color:var(--mu);background:var(--s1)" onclick="reprint()">Напечатать ещё раз</button>
  </div>
- <div class="bottom"><button class="cta" style="height:52px;font-size:15px;gap:8px" onclick="sendReceipt()">${sv(I.plane,18,2.2)}Отправить чек в бот</button><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><button class="btn2" onclick="toast('Сохранение картинкой — скоро')">Сохранить</button><button class="btn2" onclick="go('home')">На главную</button></div></div>`;
+ <div class="bottom"><button class="cta" style="height:52px;font-size:15px;gap:8px" onclick="sendReceipt()">${sv(I.plane,18,2.2)}Отправить чек в бот</button><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><button class="btn2" onclick="toast('Сохранение картинкой — скоро')">Сохранить</button><button class="btn2" onclick="S.stack=[];go('home')">На главную</button></div></div>`;
 };
 function reprint(){const p=document.getElementById('paper');if(!p)return;p.classList.remove('printing');void p.offsetWidth;p.classList.add('printing');hap()}
+function openTx(){const u=EXPL[NETS[S.net].name]+FAKEHASH;hap();if(tg&&tg.openLink)tg.openLink(u);else window.open(u,'_blank')}
 function sendReceipt(){ok();toast('Чек отправлен в бот — демо')}
 
 V.history=()=>{
@@ -371,9 +429,9 @@ V.history=()=>{
  const rows=HIST.filter(r=>S.hf==='Все'||r[5]===S.hf);
  const groups=[];rows.forEach(r=>{let g=groups.find(x=>x.l===r[0]);if(!g){g={l:r[0],i:[]};groups.push(g)}g.i.push(r)});
  return `<div class="row between">${inTg?'<span class="h1">История</span>':`<div class="row" style="gap:4px"><button aria-label="Назад" onclick="back()" style="width:36px;height:44px;margin-left:-8px;display:flex;align-items:center;justify-content:center">${sv(I.back,22,2)}</button><span class="h1">История</span></div>`}${curToggle()}</div>
- <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><div class="box col" style="padding:14px;gap:4px;border-radius:18px"><span class="mu" style="font-size:12px">Потрачено в ноябре</span><span class="u" style="font-weight:600;font-size:19px">${rub?'9 860 ₽':'$107.20'}</span></div><div class="box col" style="padding:14px;gap:4px;border-radius:18px"><span class="mu" style="font-size:12px">Пополнено</span><span class="u" style="font-weight:600;font-size:19px;color:var(--ok)">${rub?'+9 600 ₽':'+$104.35'}</span></div></div>
- <div class="hs">${['Все','Карты','Пополнения','Сервисы'].map(n=>`<button class="pill ${n===S.hf?'on':''}" onclick="hap();set({hf:'${n}'})">${n}</button>`).join('')}</div>
- ${groups.length?groups.map(g=>`<div class="col"><span style="font-size:12px;font-weight:800;color:#8E909A;letter-spacing:1px;padding:4px 0 6px">${g.l}</span>${g.i.map(r=>txRow({m:r[1],n:r[2],s:r[3],a:r[4],bad:r[7]},r[6]?`go('receipt',{rtype:'${r[6]}'})`:'')).join('')}</div>`).join(''):`<div style="padding:30px 0;text-align:center;font-size:14px;color:#8E909A">В этой категории пока пусто</div>`}`;
+ <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><div class="box col" style="padding:14px;gap:4px;border-radius:18px"><span class="mu" style="font-size:12px">Потрачено в ноябре</span><span class="u" style="font-weight:600;font-size:19px">${rub?'9 860 ₽':'$107.20'}</span></div><div class="box col" style="padding:14px;gap:4px;border-radius:18px"><span class="mu" style="font-size:12px">Пополнено на карты</span><span class="u" style="font-weight:600;font-size:19px;color:var(--ok)">${rub?'+27 600 ₽':'+$300.00'}</span></div></div>
+ <div class="hs">${['Все','Покупки','Пополнения','Выпуск','Сервисы'].map(n=>`<button class="pill ${n===S.hf?'on':''}" onclick="hap();set({hf:'${n}'})">${n}</button>`).join('')}</div>
+ ${groups.length?groups.map(g=>`<div class="col"><span style="font-size:12px;font-weight:800;color:#8E909A;letter-spacing:1px;padding:4px 0 6px">${g.l}</span>${g.i.map(r=>txRow({m:r[1],n:r[2],s:r[3],a:r[4],bad:r[7]},r[6]?`go('receipt',{rtype:'${r[6].replace('_u','')}',rm:'${r[6].endsWith('_u')?'usdt':'sbp'}',tcard:${r[3].includes('9052')?1:0}})`:'')).join('')}</div>`).join(''):`<div style="padding:30px 0;text-align:center;font-size:14px;color:#8E909A">В этой категории пока пусто</div>`}`;
 };
 
 V.profile=()=>{
@@ -394,9 +452,9 @@ V.profile=()=>{
    <span style="position:absolute;right:95px;top:-9px;width:18px;height:18px;border-radius:9px;background:var(--bg)"></span><span style="position:absolute;right:95px;bottom:-9px;width:18px;height:18px;border-radius:9px;background:var(--bg)"></span></div>
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><button class="cta" style="height:48px;font-size:14px;border-radius:14px" onclick="shareRef()">Отправить в Telegram</button><button class="btn2" onclick="copyRef()">Скопировать ссылку</button></div>
   <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px">${[['Перешли','0'],['Выпустили','0'],['Заработано','[$]']].map((x,k)=>`<div class="box col" style="padding:12px;gap:2px;border-radius:14px"><span class="mu" style="font-size:11px">${x[0]}</span><span class="u" style="font-size:17px;font-weight:600;${k===2?'color:var(--ok)':''}">${x[1]}</span></div>`).join('')}</div></div>
- <div class="box" style="padding:0 16px">${tgl('ПИН-код на вход','Спрашивать при открытии',S.pin,'pin')}${tgl('Уведомления','Операции и коды в бот',S.push,'push')}
+ <div class="box" style="padding:0 16px">${tgl('ПИН-код на вход','Спрашивать при открытии',S.pin,'pin')}<button role="switch" aria-checked="${!S.mine.length}" class="row" style="width:100%;min-height:54px;gap:12px;border-bottom:1px solid var(--s3);text-align:left" onclick="hap();set({mine:S.mine.length?[]:[0,1]})"><span class="col" style="gap:2px;flex:1"><span style="font-size:15px;font-weight:700">Демо: ещё нет карт</span><span class="mu" style="font-size:12px">Показать экраны для нового пользователя</span></span><span style="width:46px;height:28px;border-radius:14px;background:${!S.mine.length?A:'#3A3C45'};position:relative;flex-shrink:0"><span style="position:absolute;top:3px;left:${!S.mine.length?21:3}px;width:22px;height:22px;border-radius:11px;background:#fff"></span></span></button>${tgl('Уведомления','Операции и коды в бот',S.push,'push')}
   ${[['Язык','Русский'],['Поддержка','24/7'],['Тарифы и лимиты',''],['Документы',''],['Показать заставку','']].map((l,k,a)=>`<button class="row" style="width:100%;min-height:52px;gap:12px;${k<a.length-1?'border-bottom:1px solid var(--s3)':''}" onclick="${l[0]==='Показать заставку'?"go('onboarding')":`toast('${l[0]} — скоро')`}"><span style="flex:1;text-align:left;font-size:15px;font-weight:700">${l[0]}</span><span class="mu" style="font-size:14px">${l[1]}</span><span class="mu">${sv(I.right,18,2)}</span></button>`).join('')}</div>
- <span style="font-size:12px;color:#8E909A;text-align:center">${BRAND.name} · драфт v3 · данные демонстрационные</span>`;
+ <span style="font-size:12px;color:#8E909A;text-align:center">${BRAND.name} · драфт v3.1 · данные демонстрационные</span>`;
 };
 function refLink(){return 'https://t.me/OCTproBot?start=ref_'+(user.id||0)}
 function copyRef(){try{navigator.clipboard.writeText(refLink())}catch(e){}ok();toast('Ссылка скопирована')}
@@ -407,9 +465,9 @@ const FULL=['onboarding'];
 function render(){
  const s=S.screen,sub=!TABS.includes(s)&&!FULL.includes(s);
  const tab=(id,ic,l)=>`<button class="${s===id?'on':''}" onclick="go('${id}')">${sv(ic)}${l}</button>`;
- document.getElementById('app').innerHTML=(FULL.includes(s)?V[s]():`<main class="page ${sub?'sub':''}" style="position:relative">${V[s]()}</main>`)+(sub||FULL.includes(s)?'':`<nav class="tabs" aria-label="Навигация">${tab('home',I.home,'Главная')}${tab('card',I.card,'Карты')}${tab('catalog',I.grid,'Сервисы')}${tab('profile',I.user,'Профиль')}</nav>`);
+ document.getElementById('app').innerHTML=(FULL.includes(s)?V[s]():`<main class="page ${sub?'sub':''}" style="position:relative">${V[s]()}</main>`)+paySheet()+(sub||FULL.includes(s)?'':`<nav class="tabs" aria-label="Навигация">${tab('home',I.home,'Главная')}${tab('card',I.card,'Карты')}${tab('catalog',I.grid,'Сервисы')}${tab('profile',I.user,'Профиль')}</nav>`);
  if(tg){sub?tg.BackButton.show():tg.BackButton.hide()}
- if(s==='topup'){updRuler();bindRuler()}
+ if(s==='topup'&&document.getElementById('ruler')){updRuler();bindRuler()}
  if(s==='store')bindStage();
 }
 function bindRuler(){const el=document.getElementById('ruler');if(!el)return;let d=null;
